@@ -24,17 +24,15 @@ sub create_app {
     my $pages_class      = "$args->{app}::Pages";
     my $dispatcher_class = "$args->{app}::Dispatcher";
 
-    load($dispatcher_class);
     my @pages      = useall($pages_class);
+
+    load($dispatcher_class);
     my $dispatcher = $dispatcher_class->new(
         pages => \@pages,
     );
 
     sub {
-        my $app_obj = $dispatcher->dispatch(
-            env   => shift,
-            pages => \@pages,
-        );
+        my $app_obj = $dispatcher->dispatch(env => shift);
 
         local $Atelier::CONTEXT;
         Atelier->set_context($app_obj);

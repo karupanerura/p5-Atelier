@@ -12,10 +12,45 @@ SYNOPSIS
           );
       };
 
-      #
+      # YourApp::Pages
+      use parent qw/Atelier::Pages/;
+      use Atelier::Plugin::Trigger;
+      use Atelier::Plugin::Tiffany (
+          engine => 'Text::Xslate',
+          option => +{
+              syntax => 'TTerse',
+          },
+      );
+
+      use Plack::Request;
+      __PACKAGE__->add_trigger(
+          name => 'BEFORE_DISPATCH',
+          cb   => sub {
+              my $self = shift;
+              $self->req( Plack::Request->new($self->env) );
+          },
+      );
+
+      # YourApp::Pages::Hoge
+      use parent qw/YourApp::Pages/;
+
+      sub dispatch_hoge {
+          my $self = shift;
+
+          $self->stash->{hoge} = 'hoge';
+      }
+
+      # YourApp::Dispatcher
+      use parent qw/Atelier::Dispatcher/; # comming soon
+
+      # comming soon
 
 DESCRIPTION
-    Atelier is lightweight web application framework.
+    Atelier is lightweight web application framework. This WAF is very
+    pluggable and useful.
+
+  Sledge like interface.
+    Atelier is Sledge like interface.
 
 AUTHOR
     Kenta Sato <karupa@cpan.org>
