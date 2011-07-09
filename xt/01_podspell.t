@@ -8,3 +8,5 @@ __DATA__
 Kenta Sato
 karupa@cpan.org
 Atelier
+WAF
+pluggable

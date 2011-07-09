@@ -11,11 +11,6 @@ sub import {
 
     Carp::croak(q{This module can't use. This is parent module.}) if ($class eq __PACKAGE__) ;
 
-    my @methods =
-        grep { not m{^_} }
-        grep { not m{^(import|AUTOLOAD|DESTROY)$} }
-        Atelier::Util::get_all_subs($class);
-
     {
         no strict 'refs';
 
@@ -24,8 +19,13 @@ sub import {
             $class->__pre_export(@_);
         }
 
+        my @methods =
+            grep { not m{^_} }
+            grep { not m{^(import|AUTOLOAD|DESTROY)$} }
+            Atelier::Util::get_all_subs($class);
+
         foreach my $method (@methods) {
-            *{"${caller}::${method}"} = *{$symbol_table->{$method}}{CODE};
+            *{"${caller}::${method}"} = *{${"${class}::"}{$method}}{CODE};
         }
 
         if ($class->can('__post_export')) {

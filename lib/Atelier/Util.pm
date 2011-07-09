@@ -28,3 +28,5 @@ sub is_psgi_response {
         (ref($_[0]->[1]) eq 'ARRAY') and
         (ref($_[0]->[2]) eq 'ARRAY');
 }
+
+1;
