@@ -1,11 +1,21 @@
 NAME
-    Atelier -
+    Atelier - Lightweight web application framework.
 
 SYNOPSIS
+      # app.psgi
       use Atelier;
+      use Plack::Builder;
+
+      builder {
+          Atelier->create_app(
+              app => 'YourApp', # pass your app namespace
+          );
+      };
+
+      #
 
 DESCRIPTION
-    Atelier is
+    Atelier is lightweight web application framework.
 
 AUTHOR
     Kenta Sato <karupa@cpan.org>

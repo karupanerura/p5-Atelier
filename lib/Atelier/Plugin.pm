@@ -1,0 +1,38 @@
+package Atelier::Plugin;
+use strict;
+use warnings;
+
+use Carp;
+use Atelier::Util;
+
+sub import {
+    my $class  = shift;
+    my $caller = caller;
+
+    Carp::croak(q{This module can't use. This is parent module.}) if ($class eq __PACKAGE__) ;
+
+    my @methods =
+        grep { not m{^_} }
+        grep { not m{^(import|AUTOLOAD|DESTROY)$} }
+        Atelier::Util::get_all_subs($class);
+
+    {
+        no strict 'refs';
+
+        if ($class->can('__pre_export')) {
+            local *{"${class}::pages"} = sub { $caller };
+            $class->__pre_export(@_);
+        }
+
+        foreach my $method (@methods) {
+            *{"${caller}::${method}"} = *{$symbol_table->{$method}}{CODE};
+        }
+
+        if ($class->can('__post_export')) {
+            local *{"${class}::pages"} = sub { $caller };
+            $class->__post_export(@_);
+        }
+    }
+}
+
+1;

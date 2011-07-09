@@ -7,6 +7,13 @@ githubmeta;
 
 # requires '';
 
+requires 'Module::Find';
+requires 'Module::Load';
+requires 'Clone';
+requires 'Encode';
+requires 'Data::Validator';
+requires 'Tiffany';
+
 tests 't/*.t';
 author_tests 'xt';
 

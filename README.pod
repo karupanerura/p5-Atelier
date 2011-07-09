@@ -1,14 +1,25 @@
 =head1 NAME
 
-Atelier -
+Atelier - Lightweight web application framework.
 
 =head1 SYNOPSIS
 
+  # app.psgi
   use Atelier;
+  use Plack::Builder;
+
+  builder {
+      Atelier->create_app(
+          app => 'YourApp', # pass your app namespace
+      );
+  };
+
+  # 
 
 =head1 DESCRIPTION
 
-Atelier is
+Atelier is lightweight web application framework.
+
 
 =head1 AUTHOR
 
