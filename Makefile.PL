@@ -7,6 +7,9 @@ githubmeta;
 
 # requires '';
 
+requires 'parent';
+requires 'Plack';
+requires 'Exporter';
 requires 'Module::Find';
 requires 'Module::Load';
 requires 'Clone';
