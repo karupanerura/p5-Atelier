@@ -16,7 +16,7 @@ use Atelier::DataHolder (
         qw/trigger_enable/
     ],
     mk_accessors => [
-        qw/env req/
+        qw/env dispatch/
     ],
 );
 
@@ -38,6 +38,13 @@ sub new {
     bless(+{ %$args } => $class);
 }
 
+sub create_request { die 'most override' }
+sub req {
+    my $self = shift;
+
+    $self->{req} ||= $self->create_request;
+}
+
 sub http_content_type {
     my $self = shift;
 
@@ -53,6 +60,32 @@ sub http_content_type {
 
         $encoder{$self->charset} ||= Encode::find_encoding($self->charset) or die qq{Can't found encoding "@{[$self->charset]}".};
     }
+}
+
+sub status_403 {
+    my $message = '403 Forbidden';
+
+    [
+        403,
+        [
+            'Content-Type'   => 'text/plain',
+            'Content-Length' => length($message),
+        ]
+        [$message]
+    ]
+}
+
+sub status_404 {
+    my $message = '404 Not Found';
+
+    [
+        404,
+        [
+            'Content-Type'   => 'text/plain',
+            'Content-Length' => length($message),
+        ]
+        [$message]
+    ]
 }
 
 sub redirect {
@@ -92,12 +125,19 @@ sub exec {
     my $self = shift;
 
     $self->call_trigger(name => 'BEFORE_DISPATCH') if ($self->trigger_enable);
-    my $response = $self->dispatch;
+    my $response = $self->run_dispatch;
     $self->call_trigger(name => 'AFTER_DISPATCH')  if ($self->trigger_enable);
 
     Atelier::Util::is_psgi_response($response) ?
         $response:
         $self->finalize;
+}
+
+sub run_dispatch {
+    my $self = shift;
+    my $dispatch = $self->dispatch;
+
+    $self->$dispatch;
 }
 
 1;
