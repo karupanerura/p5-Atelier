@@ -24,21 +24,16 @@ sub create_app {
     my $pages_class      = "$args->{app}::Pages";
     my $dispatcher_class = "$args->{app}::Dispatcher";
 
-    my @pages      = useall($pages_class);
+    load($pages_class);
+    my @pages = useall($pages_class);
 
     load($dispatcher_class);
     my $dispatcher = $dispatcher_class->new(
-        pages => \@pages,
+        app_name => $args->{app},
+        pages    => \@pages,
     );
 
-    sub {
-        my $app_obj = $dispatcher->dispatch(env => shift);
-
-        local $Atelier::CONTEXT;
-        Atelier->set_context($app_obj);
-
-        $app_obj->exec;
-    };
+    sub { $dispatcher->dispatch(env => shift) };
 }
 
 sub{'More fun and creative'}->('for your web development life.');
