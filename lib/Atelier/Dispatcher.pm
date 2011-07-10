@@ -40,7 +40,7 @@ sub is_pages_enable {
 
 sub is_dispatch_enable {
     my($self, $pages, $dispatch) = @_;
-    unless $self->is_pages_enable($pages);
+    return unless $self->is_pages_enable($pages);
 
     $self->{dispatch_enable}{$pages}{$dispatch} ||= ($dispatch ~~ $self->dispatches($pages)); # smart matching
 }
@@ -59,7 +59,7 @@ sub dispatch {
 
     if ( $self->is_dispatch_enable($pages, $dispatch) ) {
         my $app_obj = $pages->new(
-            env => $self->{env}
+            env => $args->{env}
         );
         $app_obj->dispatch($dispatch);
 
