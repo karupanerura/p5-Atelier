@@ -70,9 +70,9 @@ sub status_403 {
         [
             'Content-Type'   => 'text/plain',
             'Content-Length' => length($message),
-        ]
+        ],
         [$message]
-    ]
+    ];
 }
 
 sub status_404 {
@@ -83,9 +83,9 @@ sub status_404 {
         [
             'Content-Type'   => 'text/plain',
             'Content-Length' => length($message),
-        ]
+        ],
         [$message]
-    ]
+    ];
 }
 
 sub redirect {
