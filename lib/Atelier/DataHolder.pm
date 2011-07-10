@@ -3,12 +3,12 @@ use strict;
 use warnings;
 
 use 5.10.0;
-use Carp;
 use Data::Validator;
-use Clone qw(clone);
+use Atelier::Util qw/datacopy wantclass/;
 
-sub datacopy { ref($_[0]) ? clone($_[0]) : $_[0] }
-sub wantclass { ref($_[0]) || $_[0] }
+BEGIN {
+    require Carp; # require only(don't import)
+}
 
 sub import {
     return if(@_ == 1);
@@ -33,30 +33,14 @@ sub mk_dataholder {
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
 
-    $class->_mk_classdata(
-        create_to => $args->{create_to},
-        name      => $args->{mk_classdata},
-    ) if(exists $args->{mk_classdata});
-    $class->_mk_translucent(
-        create_to => $args->{create_to},
-        name      => $args->{mk_translucent},
-    ) if(exists $args->{mk_translucent});
-    $class->_mk_accessor(
-        create_to => $args->{create_to},
-        name      => $args->{mk_accessor},
-    ) if(exists $args->{mk_accessor});
-    $class->_mk_classdatas(
-        create_to => $args->{create_to},
-        name      => $args->{mk_classdatas},
-    ) if(exists $args->{mk_classdatas});
-    $class->_mk_translucents(
-        create_to => $args->{create_to},
-        name      => $args->{mk_translucents},
-    ) if(exists $args->{mk_translucents});
-    $class->_mk_accessors(
-        create_to => $args->{create_to},
-        name      => $args->{mk_accessors},
-    ) if(exists $args->{mk_accessors});
+    my @dataholders = grep { m{^mk_} } keys(%$args);
+    foreach my $dataholder (@dataholders) {
+        my $method = "_${dataholder}";
+        $class->$method(
+            create_to => $args->{create_to},
+            name      => $args->{$dataholder},
+        );
+    }
 }
 
 sub mk_classdatas { shift->_mk_classdatas(create_to => scalar(caller), name => \@_) }
@@ -85,15 +69,17 @@ sub _mk_classdata {
     my $create_to = $args->{create_to};
     my $name      = $args->{name};
 
-    {
-        no strict 'refs';
-        my $holder;
-        *{"${create_to}::${name}"} = sub {
+    my $holder;
+
+    Atelier::Util::add_method(
+        add_to => $create_to,
+        name   => $name,
+        method => sub {
             (wantclass($_[0]) ne $create_to) ?
                 ( $class->_mk_classdata(create_to => wantclass($_[0]), name => $name)->(wantclass($_[0]), (@_ == 2) ? $_[1] : datacopy($holder)) ):
                 ( (@_ == 2) ? $holder = $_[1] : $holder );
-        };
-    }
+        },
+    );
 }
 
 sub mk_translucents { shift->_mk_translucents(create_to => scalar(caller), name => \@_) }
@@ -122,10 +108,12 @@ sub _mk_translucent {
     my $create_to = $args->{create_to};
     my $name      = $args->{name};
 
-    {
-        no strict 'refs';
-        my $holder;
-        *{"${create_to}::${name}"} = sub {
+    my $holder;
+    
+    Atelier::Util::add_method(
+        add_to => $create_to,
+        name   => $name,
+        method => sub {
             ref($_[0]) ?
                 (@_ == 2) ?
                     ( $_[0]->{$name} = $_[1] ):
@@ -133,8 +121,8 @@ sub _mk_translucent {
                 ($_[0] ne $create_to) ?
                     ( $class->_mk_translucent(create_to => $_[0], name => $name)->($_[0], (@_ == 2) ? $_[1] : datacopy($holder)) ):
                     ( (@_ == 2) ? ( $holder = $_[1] ) : ( $holder ) );
-        };
-    }
+        },
+    );
 }
 
 
@@ -161,18 +149,20 @@ sub _mk_accessor {
         permission => { isa => 'Str', default => 'rw' },
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
-    
-    my $create_to = $args->{create_to};
-    my $name      = $args->{name};
 
-    {
-        no strict 'refs';
-        *{"${create_to}::${name}"} =
-            ($args->{permission} eq 'rw') ? sub { (@_ == 2) ? $_[0]->{$name} = $_[1] : $_[0]->{$name} }:
-            ($args->{permission} eq 'ro') ? sub { (@_ == 1) ? $_[0]->{$name} : Carp::croak('This accessor is read only.') }:
-            ($args->{permission} eq 'wo') ? sub { (@_ == 2) ? $_[0]->{$name} = $_[1] : Carp::croak('This accessor is write only.') }:
-            Carp::croak('permission not found.');
-    }
+    my $permission = $args->{permission};
+    my $name       = $args->{name};
+
+    Atelier::Util::add_method(
+        add_to => $args->{create_to},
+        name   => $name,
+        method => (
+            ($permission eq 'rw') ? sub { (@_ == 2) ? $_[0]->{$name} = $_[1] : $_[0]->{$name} }:
+            ($permission eq 'ro') ? sub { (@_ == 1) ? $_[0]->{$name} : Carp::croak('This accessor is read only.') }:
+            ($permission eq 'wo') ? sub { (@_ == 2) ? $_[0]->{$name} = $_[1] : Carp::croak('This accessor is write only.') }:
+            Carp::croak('permission not found.')
+        ),
+    );
 }
 
 1;
