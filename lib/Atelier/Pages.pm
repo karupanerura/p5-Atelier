@@ -16,7 +16,7 @@ use Atelier::DataHolder (
         qw/trigger_enable/
     ],
     mk_accessors => [
-        qw/env dispatch/
+        qw/env dispatch template/
     ],
 );
 
@@ -104,7 +104,6 @@ sub finalize {
         [$content]
     ];
 }
-
 
 sub status_403 {
     my $message = '403 Forbidden';
