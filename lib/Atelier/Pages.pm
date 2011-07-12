@@ -44,14 +44,7 @@ sub req {
 
     $self->{req} ||= $self->create_request;
 }
-
-sub http_content_type {
-    my $self = shift;
-
-    $self->is_ascii ?
-        $self->mime_type . '; ' . $self->charset:
-        $self->mime_type;
-}
+*r = *req;
 
 {
     my %encoder;
@@ -61,6 +54,57 @@ sub http_content_type {
         $encoder{$self->charset} ||= Encode::find_encoding($self->charset) or die qq{Can't found encoding "@{[$self->charset]}".};
     }
 }
+
+sub http_content_type {
+    my $self = shift;
+
+    $self->is_ascii ?
+        $self->mime_type . '; ' . $self->charset:
+        $self->mime_type;
+}
+
+sub exec {
+    my $self = shift;
+
+    $self->call_trigger(name => 'BEFORE_DISPATCH') if ($self->trigger_enable);
+    my $response = $self->run_dispatch;
+    $self->call_trigger(name => 'AFTER_DISPATCH')  if ($self->trigger_enable);
+
+    Atelier::Util::is_psgi_response($response) ?
+        $response:
+        $self->finalize;
+}
+
+sub run_dispatch {
+    my $self = shift;
+    my $dispatch = $self->dispatch;
+
+    $self->$dispatch;
+}
+
+sub render {
+    my $self = shift;
+
+    my $renderer = $self->renderer;
+    $self->$renderer(@_);
+}
+
+sub finalize {
+    my $self = shift;
+
+    my $content = $self->render;
+    $content    = $self->encoder->encode($content) if (Encode::is_utf8($content));
+
+    [
+        200,
+        [
+            'Content-Type'   => $self->http_content_type,
+            'Content-Length' => length($content),
+        ],
+        [$content]
+    ];
+}
+
 
 sub status_403 {
     my $message = '403 Forbidden';
@@ -100,44 +144,18 @@ sub redirect {
     ];
 }
 
-sub make_absolute_uri {
+sub make_absolute_url {
     my($self, $uri, $scheme) = @_;
 
     return ($uri =~ m{^https?://}) ? $uri : $self->make_base_uri($scheme) . $uri;
 }
 
-sub make_base_uri {
+sub make_base_url {
     my($self, $scheme) = @_;
 
     $scheme ||= $self->req->scheme;
 
     return "${scheme}://" . $self->env->{HTTP_HOST} . '/';
-}
-
-sub finalize {
-    my $self = shift;
-
-    my $renderer = $self->renderer;
-    $self->$renderer;
-}
-
-sub exec {
-    my $self = shift;
-
-    $self->call_trigger(name => 'BEFORE_DISPATCH') if ($self->trigger_enable);
-    my $response = $self->run_dispatch;
-    $self->call_trigger(name => 'AFTER_DISPATCH')  if ($self->trigger_enable);
-
-    Atelier::Util::is_psgi_response($response) ?
-        $response:
-        $self->finalize;
-}
-
-sub run_dispatch {
-    my $self = shift;
-    my $dispatch = $self->dispatch;
-
-    $self->$dispatch;
 }
 
 1;
