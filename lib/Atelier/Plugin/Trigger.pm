@@ -26,7 +26,7 @@ sub call_trigger {
     my($self, $args) = $rule->validate(@_);
 
     foreach my $trigger (@{$self->trigger->{$args->{name}}}) {
-        $args->{cb} ?
+        exists($args->{cb}) ?
             $args->{cb}->($trigger):
             $trigger->($self);
     }
