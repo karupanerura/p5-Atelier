@@ -7,13 +7,14 @@ use parent qw/Atelier::Plugin/;
 use Atelier::DataHolder;
 use Data::Validator;
 
-sub __pre_expory {
+sub __pre_export {
     my $class = shift;
-    my $pages = pages;
+    my $pages = pages();
     Atelier::DataHolder->_mk_translucent(
         create_to => $pages,
         name      => 'trigger',
     );
+
     $pages->trigger(+{});
 }
 
@@ -22,7 +23,7 @@ sub call_trigger {
         name => +{ isa => 'Str' },
         cb   => +{ isa => 'CodeRef', optional => 1 },
     )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my($self, $args) = $rule->validate(@_);
 
     foreach my $trigger (@{$self->trigger->{$args->{name}}}) {
         $args->{cb} ?
@@ -36,7 +37,7 @@ sub add_trigger {
         name => +{ isa => 'Str' },
         cb   => +{ isa => 'CodeRef' },
     )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my($self, $args) = $rule->validate(@_);
 
     push(@{ $self->trigger->{$args->{name}} }, $args->{cb});
 }

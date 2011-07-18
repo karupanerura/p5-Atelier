@@ -15,23 +15,24 @@ sub __pre_export {
         option => +{ isa => 'HashRef' },
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
-    my $pages = pages;
+    my $pages = pages();
 
     $pages->charset('UTF-8');
     $pages->mime_type('text/html');
     $pages->is_ascii(1);
     $pages->renderer('render_tiffany');
 
-    Atelier::DataHolder->mk_classdatas(
-        create_to => $pages,
-        name      => ['tiffany'],
+    Atelier::DataHolder->mk_dataholder(
+        create_to    => $pages,
+        mk_classdata => 'tiffany',
+        mk_accessor  => 'template',
     );
     $pages->tiffany( Tiffany->load($args->{engine}, $args->{option}) );
 }
 
 sub render_tiffany {
     my $self = shift;
-    my $html = $self->tiffany->render($self->stash);
+    my $html = $self->tiffany->render($self->template, $self->stash);
 
     if ( $self->trigger_enable ) {
         $self->call_trigger(
@@ -42,16 +43,8 @@ sub render_tiffany {
             }
         );
     }
-    $html = $self->encoder->encode($html);
 
-    return [
-        200,
-        [
-         'Content-Type'   => $self->http_content_type,
-         'Content-Length' => length($html),
-        ],
-        $html
-    ];
+    return $html;
 }
 
 1;
