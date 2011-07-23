@@ -12,38 +12,31 @@ SYNOPSIS
           );
       };
 
+      # YourApp::Dispatcher
+      use parent qw/Atelier::Dispatcher::CamelCase/;
+
+      1;
+
       # YourApp::Pages
       use parent qw/Atelier::Pages/;
-      use Atelier::Plugin::Trigger;
-      use Atelier::Plugin::Tiffany (
-          engine => 'Text::Xslate',
-          option => +{
-              syntax => 'TTerse',
-          },
-      );
 
       use Plack::Request;
-      __PACKAGE__->add_trigger(
-          name => 'BEFORE_DISPATCH',
-          cb   => sub {
-              my $self = shift;
-              $self->req( Plack::Request->new($self->env) );
-          },
-      );
+      sub create_request{ Plack::Request->new(shift->env) };
 
-      # YourApp::Pages::Hoge
+      1;
+
+      # YourApp::Pages::Root
       use parent qw/YourApp::Pages/;
 
-      sub dispatch_hoge {
+      sub dispatch_index { # "/" or "/index" path route to this dispatch.
           my $self = shift;
 
-          $self->stash->{hoge} = 'hoge';
+          [
+             200,
+             [ 'Cotent-Type' => 'text/plain' ],
+             [ 'Hello,world!' ],
+          ];    
       }
-
-      # YourApp::Dispatcher
-      use parent qw/Atelier::Dispatcher/; # comming soon
-
-      # comming soon
 
 DESCRIPTION
     Atelier is lightweight web application framework. This WAF is very
