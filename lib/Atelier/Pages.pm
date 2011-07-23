@@ -167,4 +167,17 @@ sub make_base_url {
     return "${scheme}://" . $self->env->{HTTP_HOST} . '/';
 }
 
+sub base_dir {
+    my $class = Atelier::Util::wantclass($_[0]);
+
+    my $base_dir = Atelier::Util::base_dir($class);
+    Atelier::Util::add_method(
+        add_to => $class,
+        name   => 'base_dir',
+        method => sub { $base_dir }
+    );
+
+    $base_dir;
+}
+
 1;

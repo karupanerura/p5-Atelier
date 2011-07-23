@@ -4,6 +4,7 @@ use warnings;
 
 use 5.10.0;
 use Data::Validator;
+use File::Spec;
 
 use parent qw/Exporter/;
 
@@ -43,6 +44,20 @@ sub add_method {
     {
         no strict 'refs'; ## no critic
         *{"$args->{add_to}::$args->{name}"} = $args->{method};
+    }
+}
+
+sub base_dir($) { ## no critic
+    my $path = shift;
+
+    $path =~ s{::}{/}g;
+
+    if (my $libpath = $INC{"${path}.pm"}) {
+        $libpath =~ s{(?:blib/)?lib/(?:[\d\w]+/)*${path}\.pm$}{};
+        File::Spec->rel2abs($libpath or './');
+    }
+    else {
+        File::Spec->rel2abs('./');
     }
 }
 
