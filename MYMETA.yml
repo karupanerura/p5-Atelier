@@ -4,7 +4,6 @@ author:
   - 'Kenta Sato <karupa@cpan.org>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
-  Test::More: 0
 configure_requires:
   ExtUtils::MakeMaker: 0
 distribution_type: module
@@ -27,7 +26,6 @@ requires:
   Module::Find: 0
   Module::Load: 0
   Plack: 0
-  Tiffany: 0
   parent: 0
   perl: 5.010
 version: 0.02

@@ -15,7 +15,13 @@ requires 'Module::Load';
 requires 'Clone';
 requires 'Encode';
 requires 'Data::Validator';
-requires 'Tiffany';
+
+features(
+    'if use Atelier::Plugin::Tiffany' => [
+        -default => 1,
+        recommends('Tiffany'),
+    ],
+);
 
 tests 't/*.t';
 author_tests 'xt';
