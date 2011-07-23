@@ -12,7 +12,7 @@ sub import {
     Carp::croak(q{This module can't use. This is parent module.}) if ($class eq __PACKAGE__) ;
 
     {
-        no strict 'refs';
+        no strict 'refs'; ## no critic
 
         if ($class->can('__pre_export')) {
             local *{"${class}::pages"} = sub { $caller };

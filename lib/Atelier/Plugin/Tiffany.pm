@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use parent qw/Atelier::Plugin/;
-use Atelier::DataHolder;
+use Atelier::Util;
 
 use 5.10.0;
 use Tiffany;
@@ -22,27 +22,26 @@ sub __pre_export {
     $pages->is_ascii(1);
     $pages->renderer('render_tiffany');
 
-    Atelier::DataHolder->mk_dataholder(
-        create_to    => $pages,
-        mk_classdata => 'tiffany',
-        mk_accessor  => 'template',
+    my $tiffany = Tiffany->load($args->{engine}, $args->{option});
+
+    Atelier::Util::add_method(
+        add_to => $pages,
+        name   => 'tiffany',
+        method => sub { $tiffany },
     );
-    $pages->tiffany( Tiffany->load($args->{engine}, $args->{option}) );
 }
 
 sub render_tiffany {
     my $self = shift;
     my $html = $self->tiffany->render($self->template, $self->stash);
 
-    if ( $self->trigger_enable ) {
-        $self->call_trigger(
-            name => 'HTML_FILTER',
-            cb => sub {
-                my $code = shift;
-                $html = $code->($self, $html);
-            }
-        );
-    }
+    $self->call_trigger(
+        name => 'HTML_FILTER',
+        cb => sub {
+            my $code = shift;
+            $html = $code->($self, $html);
+        }
+    );
 
     return $html;
 }

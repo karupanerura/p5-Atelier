@@ -15,14 +15,14 @@ our(@EXPORT_OK, %EXPORT_TAGS);
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
 BEGIN {
-    require Clone;# require only(don't import)
+    require Clone; # require only(don't import)
 }
 
 sub get_all_subs($) { ## no critic
     my $class = shift;
 
     {
-        no strict 'refs';
+        no strict 'refs'; ## no critic
         my $symbol_table = \%{"${class}::"};
         my @methods =
             grep { defined(*{$symbol_table->{$_}}{CODE}) }
@@ -30,14 +30,6 @@ sub get_all_subs($) { ## no critic
 
         wantarray ? @methods : \@methods;
     }
-}
-
-my $http_status_code = qr{^(?:4(?:1[0-7]|0\d)|20[0-6]|30[0-57]|50[0-5]|10[01])$};
-sub is_psgi_response($) { ## no critic
-    (ref($_[0]) eq 'ARRAY') and
-        ($_[0]->[0] =~ $http_status_code) and
-        (ref($_[0]->[1]) eq 'ARRAY' and ((scalar(@{$_[0]->[1]}) % 2) == 0) ) and
-        (ref($_[0]->[2]) eq 'ARRAY');
 }
 
 sub add_method {
@@ -49,7 +41,7 @@ sub add_method {
     my $args = $rule->validate(@_);
 
     {
-        no strict 'refs';
+        no strict 'refs'; ## no critic
         *{"$args->{add_to}::$args->{name}"} = $args->{method};
     }
 }

@@ -10,10 +10,7 @@ use Atelier::Util;
 
 use Atelier::DataHolder (
     mk_translucents => [
-        qw/charset mime_type stash renderer is_ascii/
-    ],
-    mk_classdatas => [
-        qw/trigger_enable/
+        qw/charset mime_type stash renderer is_text/
     ],
     mk_accessors => [
         qw/env dispatch template/
@@ -25,7 +22,12 @@ sub import {
 
     Carp::croak(q{This module can't use. This is parent module.}) if ($class eq __PACKAGE__) ;
 
-    $class->trigger_enable($class->can('trigger') ? 1 : 0);
+    $class->init(@_);
+}
+
+sub init {
+    my $class = shift;
+
     $class->stash(+{});
 }
 
@@ -46,6 +48,10 @@ sub req {
 }
 *r = *req;
 
+# dummy
+sub call_trigger {}
+sub add_trigger  { Carp::croak('You have to use Atelier::Plugin::Trigger if you want to use trigger.') }
+
 {
     my %encoder;
     sub encoder {
@@ -58,7 +64,7 @@ sub req {
 sub http_content_type {
     my $self = shift;
 
-    $self->is_ascii ?
+    $self->is_text ?
         $self->mime_type . '; ' . $self->charset:
         $self->mime_type;
 }
@@ -66,13 +72,17 @@ sub http_content_type {
 sub exec {
     my $self = shift;
 
-    $self->call_trigger(name => 'BEFORE_DISPATCH') if ($self->trigger_enable);
-    my $response = $self->run_dispatch;
-    $self->call_trigger(name => 'AFTER_DISPATCH')  if ($self->trigger_enable);
+    $self->call_trigger(name => 'BEFORE_DISPATCH');
+    my $result = $self->run_dispatch;
+    $self->call_trigger(name => 'AFTER_DISPATCH');
 
-    Atelier::Util::is_psgi_response($response) ?
-        $response:
-        $self->finalize;
+    my $res = $self->renderer ?
+        $self->finalize:
+        $result;
+
+    $self->call_trigger(name => 'RESPONSE_FILTER', cb => sub { shift->($self, $res) });
+
+    $res;
 }
 
 sub run_dispatch {
@@ -101,7 +111,7 @@ sub finalize {
             'Content-Type'   => $self->http_content_type,
             'Content-Length' => length($content),
         ],
-        [$content]
+        [ $content ]
     ];
 }
 
