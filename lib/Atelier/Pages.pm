@@ -65,7 +65,7 @@ sub http_content_type {
     my $self = shift;
 
     $self->is_text ?
-        $self->mime_type . '; ' . $self->charset:
+        $self->mime_type . '; charset=' . $self->charset:
         $self->mime_type;
 }
 
