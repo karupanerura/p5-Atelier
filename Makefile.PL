@@ -18,7 +18,7 @@ requires 'Data::Validator';
 
 features(
     'if use Atelier::Plugin::Tiffany' => [
-        -default => 1,
+        -default => 0,
         recommends('Tiffany'),
     ],
 );
