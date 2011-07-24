@@ -16,4 +16,5 @@ Atelier::Builder->new(
 )->build;
 
 =pod
+    atelier-builder.pl [--flaver=FlaverName] AppName
 =cut
