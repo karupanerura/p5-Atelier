@@ -2,14 +2,13 @@ package t::Util;
 use strict;
 use warnings;
 
-use Atelier::Util qw/get_all_subs/;
+use Atelier::Util;
 use parent qw/Test::Builder::Module/;
 
 our @EXPORT =
-    grep { not m{^get_all_subs$} }
     grep { not m{^_} }
     grep { not m{^(import|AUTOLOAD|DESTROY)$} }
-    __PACKAGE__->get_all_subs;
+    Atelier::Util::get_all_subs(__PACKAGE__);
 
 sub test_require {
     my @modules = @_;
