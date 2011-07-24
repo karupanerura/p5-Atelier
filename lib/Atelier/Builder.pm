@@ -139,7 +139,7 @@ sub build {
     }
     else {
         require Carp;
-        Crap::croak('flavor not found.');
+        Carp::croak('flavor not found.');
     }
 }
 
