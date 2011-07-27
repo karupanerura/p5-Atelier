@@ -4,9 +4,12 @@ use warnings;
 
 use 5.10.0;
 use Data::Validator;
-use File::Spec;
+use Fcntl ':flock';
+use File::Path;
 use File::Copy;
+use File::Find;
 use Atelier;
+use Atelier::Util::TinyTemplate;
 
 BEGIN {
     srand($$ ^ time);
@@ -14,8 +17,10 @@ BEGIN {
 
 sub new {
     state $rule = Data::Validator->new(
-        flavor   => +{ isa => 'Str', default => 'Basic' },
-        app_name => +{ isa => 'Str' },
+        flavor    => +{ isa => 'Str', default => 'Basic' },
+        app_name  => +{ isa => 'Str' },
+        encoding  => +{ isa => 'Str', default => 'utf8' },
+        variables => +{ isa => 'HashRef', optional => 1 },
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
 
@@ -25,48 +30,30 @@ sub new {
 sub init {
     my $self = shift;
 
-    $self->{variable} = +{
+    $self->{variables} ||= +{
         APP_NAME        => $self->{app_name},
         ATELIER_VERSION => $Atelier::VERSION,
-        PERL_VERSION    => '5.010000'
+        PERL_VERSION    => '5.010_000'
     };
 
     my $flavor_dir = $self->flavor_dir;
     my $tmp_dir    = $self->tmp_dir;
-    my $dir_callback; $dir_callback = sub{
-        my $path = shift;
-        my $new_path = $path;
+    find(+{
+        wanted => sub {
+            my $path = $File::Find::name;
+            my $new_path = $path;
 
-        $new_path =~ s{^${flavor_dir}}{$tmp_dir};
+            $new_path =~ s{^${flavor_dir}}{$tmp_dir};
 
-        given ($path) {
-            when (-f $_) {
+            if (-f $path) {
                 copy($path, $new_path) or die $!;
             }
-            when (-d $_) {
+            elsif (-d $path) {
                 mkdir($new_path, oct(755));
-                $self->dispatch_dir(
-                    dir => $path,
-                    cb  => $dir_callback,
-                );
             }
-        }
-
-    };
-
-    $self->dispatch_dir(
-        dir => $flavor_dir,
-        cb  => $dir_callback,
-    );
-}
-
-sub variable {
-    my $self = shift;
-    my $name = shift;
-
-    return "__${name}__" if($name =~ m{^(?:PACKAGE|FILE|LINE|END|DATA)$});
-
-    $self->{variable}{$name} or die(qq{Don't defined tempalte variable "$name".});
+        },
+        no_chdir => 1,
+    }, $flavor_dir);
 }
 
 sub flavor_dir {
@@ -79,14 +66,11 @@ sub tmp_dir {
     my $self = shift;
 
     $self->{tmp_dir} ||= do{
-        mkdir('/tmp/Atelier',                 oct(755)) unless(-d '/tmp/Atelier');
-        mkdir("/tmp/Atelier/$self->{flavor}", oct(755)) unless(-d "/tmp/Atelier/$self->{flavor}");
-
         my $random;
         do {
             $random = int(rand(1000));
         } while(-d "/tmp/Atelier/$self->{flavor}/$self->{app_name}${random}");
-        mkdir("/tmp/Atelier/$self->{flavor}/$self->{app_name}${random}", oct(755));
+        File::Path::mkpath("/tmp/Atelier/$self->{flavor}/$self->{app_name}${random}");
 
         "/tmp/Atelier/$self->{flavor}/$self->{app_name}${random}";
     };
@@ -104,37 +88,41 @@ sub build {
     if (-d $self->flavor_dir) {
         $self->init;
 
-        my $file_callback = sub{
-            $_[0] =~ s{__(.+?)__}{$self->variable($1)}msxige;
-        };
-        my $dir_callback; $dir_callback = sub{
-            my $path = shift;
+        find(+{
+            wanted => sub{
+                my $path = $File::Find::name;
 
-            my $path_org = $path;
-            if ( $file_callback->($path) ) {
-                move($path_org, $path);
-            }
+                if (-f $path) {
+                    open(my $fh, "+<:encoding($self->{encoding})", $path) or die qq{Can't open file "$path": $!};
+                    flock($fh, LOCK_EX);
+                    my $template = join('', <$fh>);
 
-            given ($path) {
-                when (-f $_) {
-                    $self->dispatch_file(
-                        file => $path,
-                        cb   => $file_callback,
+                    my $result = Atelier::Util::TinyTemplate->render_string(
+                        template  => $template,
+                        variables => $self->{variables},
                     );
-                }
-                when (-d $_) {
-                    $self->dispatch_dir(
-                        dir => $path,
-                        cb  => $dir_callback,
-                    );
-                }
-            }
-        };
 
-        $self->dispatch_dir(
-            dir => $self->tmp_dir,
-            cb  => $dir_callback,
-        );
+                    print $fh $result;
+                    flock($fh, LOCK_UN);
+                    close($fh);
+                }
+            },
+            no_chdir => 1,
+        }, $self->tmp_dir);
+        finddepth(+{
+            wanted => sub{
+                my $path = $File::Find::name;
+
+                my $new_path = Atelier::Util::TinyTemplate->render_string(
+                    template  => $path,
+                    variables => $self->{variables},
+                );
+
+                move($path, $new_path) if($path ne $new_path);
+            },
+            no_chdir => 1,
+        }, $self->tmp_dir);
+
         move($self->tmp_dir, $self->target_dir);
     }
     else {
@@ -143,77 +131,11 @@ sub build {
     }
 }
 
-sub dispatch_dir {
-    state $rule = Data::Validator->new(
-        dir => +{ isa => 'Str' },
-        cb  => +{ isa => 'CodeRef' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
-
-    opendir(my $dir, $args->{dir}) or die "$! : $args->{dir}";
-    my @files = readdir($dir);
-    closedir($dir);
-
-    foreach my $file (@files) {
-        next if($file =~ m{^\.{1,2}$});
-        $args->{cb}->(File::Spec->catfile($args->{dir}, $file));
-    }
-}
-
-sub dispatch_file {
-    state $rule = Data::Validator->new(
-        file     => +{ isa => 'Str' },
-        cb       => +{ isa => 'CodeRef' },
-        encoding => +{ isa => 'Str', default => 'utf8' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
-
-    open(my $fh, "<:encoding($args->{encoding})", $args->{file}) or die "$! : $args->{file}";
-    my @lines = <$fh>;
-    close($fh);
-
-    my $overwrite;
-    foreach(@lines) {
-        my $defalt = $_;
-        $args->{cb}->($_);
-        $overwrite ||= ($defalt ne $_);
-    }
-
-    if ($overwrite) {
-        open(my $fh, ">:encoding($args->{encoding})", $args->{file}) or die "$! : $args->{file}";
-        foreach my $line (@lines) {
-            print $fh ($line);
-        }
-        close($fh);
-    }
-}
-
 sub DESTROY {
     my $self = shift;
     return unless(-d $self->tmp_dir);
 
-    my $dir_callback; $dir_callback = sub{
-        my $path = shift;
-
-        given ($path) {
-            when (-f $_) {
-                unlink($path);
-            }
-            when (-d $_) {
-                $self->dispatch_dir(
-                    dir => $path,
-                    cb  => $dir_callback,
-                );
-            }
-        }
-
-    };
-
-    $self->dispatch_dir(
-        dir => $self->tmp_dir,
-        cb  => $dir_callback,
-    );
-    rmdir($self->tmp_dir);
+    File::Path::rmtree($self->tmp_dir);
 }
 
 1;
