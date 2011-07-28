@@ -19,7 +19,7 @@ sub new {
     state $rule = Data::Validator->new(
         flavor    => +{ isa => 'Str', default => 'Basic' },
         app_name  => +{ isa => 'Str' },
-        encoding  => +{ isa => 'Str', default => 'utf8' },
+        charset   => +{ isa => 'Str', default => 'utf8' },
         variables => +{ isa => 'HashRef', optional => 1 },
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
@@ -93,7 +93,7 @@ sub build {
                 my $path = $File::Find::name;
 
                 if (-f $path) {
-                    open(my $fh, "+<:encoding($self->{encoding})", $path) or die qq{Can't open file "$path": $!};
+                    open(my $fh, "+<:encoding($self->{charset})", $path) or die qq{Can't open file "$path": $!};
                     flock($fh, LOCK_EX);
                     my $template = join('', <$fh>);
 
