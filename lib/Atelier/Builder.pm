@@ -8,6 +8,7 @@ use Fcntl ':flock';
 use File::Path;
 use File::Copy;
 use File::Find;
+use Module::Load;
 use Atelier;
 use Atelier::Util::TinyTemplate;
 
@@ -85,50 +86,53 @@ sub target_dir {
 sub build {
     my $self = shift;
 
-    if (-d $self->flavor_dir) {
-        $self->init;
+    unless (-d $self->flavor_dir) {
+        my $flavor_class = "Atelier::Flavor::$self->{flavor}";
+        load($flavor_class);
+        $flavor_class->new(
+            charset => $self->{charset}
+        )->create;
+    }
 
-        find(+{
-            wanted => sub{
-                my $path = $File::Find::name;
+    $self->init;
 
-                if (-f $path) {
-                    open(my $fh, "+<:encoding($self->{charset})", $path) or die qq{Can't open file "$path": $!};
-                    flock($fh, LOCK_EX);
-                    my $template = join('', <$fh>);
+    find(+{
+        wanted => sub{
+            my $path = $File::Find::name;
 
-                    my $result = Atelier::Util::TinyTemplate->render_string(
-                        template  => $template,
-                        variables => $self->{variables},
-                    );
+            if (-f $path) {
+                open(my $fh, "+<:encoding($self->{charset})", $path) or die qq{Can't open file "$path": $!};
+                flock($fh, LOCK_EX);
+                my $template = join('', <$fh>);
 
-                    print $fh $result;
-                    flock($fh, LOCK_UN);
-                    close($fh);
-                }
-            },
-            no_chdir => 1,
-        }, $self->tmp_dir);
-        finddepth(+{
-            wanted => sub{
-                my $path = $File::Find::name;
-
-                my $new_path = Atelier::Util::TinyTemplate->render_string(
-                    template  => $path,
+                my $result = Atelier::Util::TinyTemplate->render_string(
+                    template  => $template,
                     variables => $self->{variables},
                 );
 
-                move($path, $new_path) if($path ne $new_path);
-            },
-            no_chdir => 1,
-        }, $self->tmp_dir);
+                
+                print $fh $result;
+                flock($fh, LOCK_UN);
+                close($fh);
+            }
+        },
+        no_chdir => 1,
+    }, $self->tmp_dir);
+    finddepth(+{
+        wanted => sub{
+            my $path = $File::Find::name;
 
-        move($self->tmp_dir, $self->target_dir);
-    }
-    else {
-        require Carp;
-        Carp::croak('flavor not found.');
-    }
+            my $new_path = Atelier::Util::TinyTemplate->render_string(
+                template  => $path,
+                variables => $self->{variables},
+            );
+
+            move($path, $new_path) if($path ne $new_path);
+        },
+        no_chdir => 1,
+    }, $self->tmp_dir);
+
+    move($self->tmp_dir, $self->target_dir);
 }
 
 sub DESTROY {
