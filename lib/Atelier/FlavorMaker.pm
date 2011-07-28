@@ -76,10 +76,12 @@ sub add_file {
     flock($fh, LOCK_UN);
     close($fh);
 
+    my $path     = $args->{path};
     my $app_name = quotemeta($self->{app_name});
     $file =~ s{$app_name}{__APP_NAME__}mg;
+    $path =~ s{$app_name}{__APP_NAME__}mg;
 
-    push(@{ $self->{file_list} }, +{ $args->{path} => $file } );
+    push(@{ $self->{file_list} }, +{ $path => $file } );
 }
 
 sub add_dir {
@@ -88,7 +90,11 @@ sub add_dir {
     )->with('Method');
     my($self, $args) = $rule->validate(@_);
 
-    push(@{ $self->{dir_list} }, $args->{path});
+    my $path     = $args->{path};
+    my $app_name = quotemeta($self->{app_name});
+    $path =~ s{$app_name}{__APP_NAME__}mg;
+
+    push(@{ $self->{dir_list} }, $path);
 }
 
 sub finalize {
