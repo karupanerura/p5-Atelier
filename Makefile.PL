@@ -9,12 +9,19 @@ githubmeta;
 
 requires 'parent';
 requires 'Plack';
-requires 'Exporter';
 requires 'Module::Find';
+requires 'Data::Validator';
+
+requires 'Exporter';
 requires 'Module::Load';
 requires 'Clone';
 requires 'Encode';
-requires 'Data::Validator';
+requires 'Fcntl';
+requires 'Cwd';
+requires 'Carp';
+requires 'File::Find';
+requires 'File::Path';
+requires 'File::Spec';
 
 features(
     'if use Atelier::Plugin::Tiffany' => [
