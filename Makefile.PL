@@ -30,6 +30,9 @@ features(
     ],
 );
 
+install_script('script/atelier-builder.pl');
+install_script('script/atelier-flavormaker.pl');
+
 tests 't/*.t';
 author_tests 'xt';
 
