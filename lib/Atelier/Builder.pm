@@ -101,19 +101,24 @@ sub build {
             my $path = $File::Find::name;
 
             if (-f $path) {
-                open(my $fh, "+<:encoding($self->{charset})", $path) or die qq{Can't open file "$path": $!};
-                flock($fh, LOCK_EX);
-                my $template = join('', <$fh>);
+                open(my $in, "<:encoding($self->{charset})", $path) or die qq{Can't open file "$path": $!};
+                flock($in, LOCK_EX);
+                my $template = join('', <$in>);
+                flock($in, LOCK_UN);
+                close($in);
 
                 my $result = Atelier::Util::TinyTemplate->render_string(
                     template  => $template,
                     variables => $self->{variables},
                 );
 
+                open(my $out, ">:encoding($self->{charset})", $path) or die qq{Can't open file "$path": $!};
+                flock($out, LOCK_EX);
                 
-                print $fh $result;
-                flock($fh, LOCK_UN);
-                close($fh);
+                print $out $result;
+
+                flock($out, LOCK_UN);
+                close($out);
             }
         },
         no_chdir => 1,
