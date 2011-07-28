@@ -6,7 +6,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 GetOptions(
-    flavor => \my $flavor,
+    'flavor=s' => \my $flavor,
 );
 my $app_name = shift(@ARGV) or pod2usage(0);
 
