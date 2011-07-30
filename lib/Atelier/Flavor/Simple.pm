@@ -104,8 +104,8 @@ __PACKAGE__->add_trigger(
         my $self = shift;
 
         my $template = $self->env->{PATH_INFO};
-        $template =~ s{^/}{};
         $template =~ s{/$}{/index};
+        $template =~ s{^/}{};
         $self->template($template . $suffix);
     },
 );
