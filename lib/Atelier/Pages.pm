@@ -17,6 +17,7 @@ use Atelier::DataHolder (
     ],
 );
 
+__PACKAGE__->mime_type('text/html');
 __PACKAGE__->charset('UTF-8');
 __PACKAGE__->is_text(1);
 
