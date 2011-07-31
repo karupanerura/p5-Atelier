@@ -66,12 +66,17 @@ sub add_trigger  { Carp::croak('You have to use Atelier::Plugin::Trigger if you 
     }
 }
 
-sub http_content_type {
-    my $self = shift;
+{
+    my %content_type;
+    sub http_content_type {
+        my $self = shift;
 
-    $self->is_text ?
-        $self->mime_type . '; charset=' . $self->charset:
-        $self->mime_type;
+        $content_type{$self->charset}{$self->mime_type} ||= do {
+            $self->is_text ?
+                $self->mime_type . '; charset=' . $self->encoder->mime_name:
+                $self->mime_type;
+        };
+    }
 }
 
 sub exec {
