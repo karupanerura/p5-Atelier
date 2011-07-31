@@ -17,7 +17,8 @@ our $VERSION = '0.02';
 
 sub create_app {
     state $rule = Data::Validator->new(
-        app => +{ isa => 'Str' },
+        app    => +{ isa => 'Str' },
+        prefix => +{ isa => 'Str', optional => 1 }
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
     
@@ -31,6 +32,7 @@ sub create_app {
     my $dispatcher = $dispatcher_class->new(
         app_name => $args->{app},
         pages    => \@pages,
+        exists($args->{prefix}) ? (prefix => $args->{prefix}) : (),
     );
 
     sub { $dispatcher->dispatch(env => shift) };

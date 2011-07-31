@@ -4,7 +4,7 @@ use warnings;
 
 use parent qw/Atelier::Dispatcher/;
 
-sub rule {
+sub router {
     my($self, $env) = @_;
 
     if ($env->{PATH_INFO} =~ m{^/?(?:(.*)/(.*?))$}) {

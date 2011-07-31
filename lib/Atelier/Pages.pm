@@ -13,7 +13,7 @@ use Atelier::DataHolder (
         qw/charset mime_type stash renderer is_text/
     ],
     mk_accessors => [
-        qw/env dispatch template/
+        qw/env dispatch args template/
     ],
 );
 
@@ -33,7 +33,9 @@ sub init {
 
 sub new {
     state $rule = Data::Validator->new(
-        env => 'HashRef'
+        env      => 'HashRef',
+        dispatch => 'Str',
+        args     => 'HashRef',
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
 
@@ -171,6 +173,7 @@ sub base_dir {
     my $class = Atelier::Util::wantclass($_[0]);
 
     my $base_dir = Atelier::Util::base_dir($class);
+
     Atelier::Util::add_method(
         add_to => $class,
         name   => 'base_dir',

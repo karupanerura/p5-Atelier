@@ -12,6 +12,7 @@ sub new {
     state $rule = Data::Validator->new(
         app_name => +{ isa => 'Str' },
         pages    => +{ isa => 'ArrayRef[Str]' },
+        prefix   => +{ isa => 'Str', default => 'dispatch_' }
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
 
@@ -27,9 +28,10 @@ sub app_pages {
 sub dispatches {
     my($self, $pages) = @_;
 
-    $self->{dispatches}{$pages} ||= [
-        grep { m{^dispatch_} } Atelier::Util::get_all_subs($pages)
-    ];
+    $self->{dispatches}{$pages} ||= do {
+        my $prefix = $self->{prefix};
+        [ grep { m{^$prefix} } Atelier::Util::get_all_subs($pages) ];
+    };
 }
 
 sub is_pages_enable {
@@ -51,17 +53,18 @@ sub dispatch {
     )->with('Method');
     my($self, $args) = $rule->validate(@_);
 
-    my $route = $self->rule($args->{env});
-    return $self->app_pages->status_404 unless $route;
+    my $route = $self->router($args->{env});
+    return $self->app_pages->status_404 unless($route && $route->{pages} && $route->{dispatch});
 
-    my $pages    = $self->app_pages . "::$route->{pages}";
-    my $dispatch = "dispatch_$route->{dispatch}";
+    my $pages    = $self->app_pages . '::' . delete($route->{pages});
+    my $dispatch = $self->{prefix} .         delete($route->{dispatch});
 
     if ( $self->is_dispatch_enable($pages, $dispatch) ) {
         my $app_obj = $pages->new(
-            env => $args->{env}
+            env      => $args->{env},
+            dispatch => $dispatch,
+            args     => $route,
         );
-        $app_obj->dispatch($dispatch);
 
         local $Atelier::CONTEXT;
         Atelier->set_context($app_obj);
