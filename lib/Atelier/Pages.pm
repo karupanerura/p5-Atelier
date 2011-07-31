@@ -28,7 +28,7 @@ sub import {
 sub init {
     my $class = shift;
 
-    $class->stash(+{});
+    $class->stash(+{}) unless($class->stash);
 }
 
 sub new {
