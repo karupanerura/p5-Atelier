@@ -121,6 +121,7 @@ sub finalize {
         [
             'Content-Type'   => $self->http_content_type,
             'Content-Length' => length($content),
+            'X-Content-Type-Options' => 'nosniff',
         ],
         [ $content ]
     ];
