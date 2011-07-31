@@ -17,9 +17,6 @@ sub __pre_export {
     my($class, $args) = $rule->validate(@_);
     my $pages = pages();
 
-    $pages->charset('UTF-8');
-    $pages->mime_type('text/html');
-    $pages->is_text(1);
     $pages->renderer('render_tiffany');
 
     my $tiffany = Tiffany->load($args->{engine}, $args->{option});
