@@ -17,6 +17,9 @@ use Atelier::DataHolder (
     ],
 );
 
+__PACKAGE__->charset('UTF-8');
+__PACKAGE__->is_text(1);
+
 sub import {
     my $class = shift;
 
