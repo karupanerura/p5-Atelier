@@ -28,6 +28,10 @@ features(
         -default => 0,
         recommends('Tiffany'),
     ],
+    'if use Atelier::Plugin::JSON' => [
+        -default => 0,
+        recommends('JSON'),
+    ],
     'if use Atelier::Dispather::RouterSimple' => [
         -default => 0,
         recommends('Router::Simple'),

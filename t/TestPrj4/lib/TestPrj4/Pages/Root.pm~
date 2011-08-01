@@ -1,0 +1,18 @@
+package TestPrj4::Pages::Root;
+use strict;
+use warnings;
+
+use parent qw/TestPrj4::Pages/;
+
+use Atelier::Plugin::JSON;
+
+sub dispatch_index {
+    my $self = shift;
+
+    $self->stash->{hoge}  = 'fuga';
+    $self->stash->{hello} = 'world';
+    $self->stash->{japan} = 'にほんご';
+    $self->stash->{deep}  = +{ deep => +{deep => 'deep'} };
+}
+
+1;
