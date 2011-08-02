@@ -5,16 +5,11 @@ use warnings;
 use parent qw/Atelier::Plugin/;
 use Atelier::Util;
 
-use 5.10.0;
 use Tiffany;
-use Data::Validator;
 
 sub __pre_export {
-    state $rule = Data::Validator->new(
-        engine => +{ isa => 'Str'},
-        option => +{ isa => 'HashRef' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
     my $pages = pages();
 
     $pages->renderer('render_tiffany');

@@ -10,7 +10,6 @@ githubmeta;
 requires 'parent';
 requires 'Plack';
 requires 'Module::Find';
-requires 'Data::Validator';
 
 requires 'Exporter';
 requires 'Module::Load';

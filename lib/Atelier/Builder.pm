@@ -2,8 +2,6 @@ package Atelier::Builder;
 use strict;
 use warnings;
 
-use 5.10.0;
-use Data::Validator;
 use Fcntl ':flock';
 use File::Path;
 use File::Copy;
@@ -17,13 +15,10 @@ BEGIN {
 }
 
 sub new {
-    state $rule = Data::Validator->new(
-        flavor    => +{ isa => 'Str', default => 'Basic' },
-        app_name  => +{ isa => 'Str' },
-        charset   => +{ isa => 'Str', default => 'utf8' },
-        variables => +{ isa => 'HashRef', optional => 1 },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
+    $args->{charset} ||= 'utf8';
+    $args->{flavor}  ||= 'Basic';
 
     bless(+{ %$args } => $class);
 }

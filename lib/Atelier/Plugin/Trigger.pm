@@ -2,10 +2,8 @@ package Atelier::Plugin::Trigger;
 use strict;
 use warnings;
 
-use 5.10.0;
 use parent qw/Atelier::Plugin/;
 use Atelier::DataHolder;
-use Data::Validator;
 
 sub __pre_export {
     my $class = shift;
@@ -19,11 +17,8 @@ sub __pre_export {
 }
 
 sub call_trigger {
-    state $rule = Data::Validator->new(
-        name => +{ isa => 'Str' },
-        cb   => +{ isa => 'CodeRef', optional => 1 },
-    )->with('Method');
-    my($self, $args) = $rule->validate(@_);
+    my $self  = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     foreach my $trigger (@{$self->trigger->{$args->{name}}}) {
         exists($args->{cb}) ?
@@ -33,11 +28,8 @@ sub call_trigger {
 }
 
 sub add_trigger {
-    state $rule = Data::Validator->new(
-        name => +{ isa => 'Str' },
-        cb   => +{ isa => 'CodeRef' },
-    )->with('Method');
-    my($self, $args) = $rule->validate(@_);
+    my $self  = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     push(@{ $self->trigger->{$args->{name}} }, $args->{cb});
 }

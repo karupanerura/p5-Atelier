@@ -2,8 +2,7 @@ package Atelier::Util;
 use strict;
 use warnings;
 
-use 5.10.0;
-use Data::Validator;
+
 use File::Spec;
 
 use parent qw/Exporter/;
@@ -34,12 +33,7 @@ sub get_all_subs($) { ## no critic
 }
 
 sub add_method {
-    state $rule = Data::Validator->new(
-        add_to => +{ isa => 'Str' },
-        name   => +{ isa => 'Str' },
-        method => +{ isa => 'CodeRef' },
-    );
-    my $args = $rule->validate(@_);
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     {
         no strict 'refs'; ## no critic

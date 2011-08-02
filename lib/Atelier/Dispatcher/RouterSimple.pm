@@ -2,13 +2,10 @@ package Atelier::Dispatcher::RouterSimple;
 use strict;
 use warnings;
 
-use 5.10.0;
-
 use parent qw/Atelier::Dispatcher/;
 use Atelier::Util;
 
 use Router::Simple;
-use Data::Validator;
 
 sub import {
     my $class  = shift;
@@ -23,21 +20,9 @@ sub import {
 
     my %export_sugars = (
         connect => sub ($$) { ## no critic
-            state $param_rule = Data::Validator->new(
-                pages    => +{ isa => 'Str', },
-                dispatch => +{ isa => 'Str', optional => 1 },
-                method   => +{ isa => 'Str', default  => 'ANY' },
-            );
-            $_[1] = $param_rule->validate(%{ $_[1] });
             $router_simple->connect(@_);
         },
         submapper => sub ($$) { ## no critic
-            state $param_rule = Data::Validator->new(
-                pages    => +{ isa => 'Str', },
-                dispatch => +{ isa => 'Str', optional => 1 },
-                method   => +{ isa => 'Str', default  => 'ANY' },
-            );
-            $_[1] = $param_rule->validate(%{ $_[1] });
             $router_simple->submapper(@_);
         },
     );
@@ -60,7 +45,7 @@ sub router {
     my $param  = $self->router_simple->match($env);
     return unless($param);
 
-    my $method = uc( delete $param->{method} );
+    my $method = $param->{method} ? uc( delete $param->{method} ) : 'ANY';
 
     return $param if (($method eq 'ANY') or ($method eq $env->{REQUEST_METHOD}));
 }

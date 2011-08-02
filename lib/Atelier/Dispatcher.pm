@@ -2,19 +2,14 @@ package Atelier::Dispatcher;
 use strict;
 use warnings;
 
-use 5.10.0;
-use Data::Validator;
-
 use Atelier;
 use Atelier::Util;
 
 sub new {
-    state $rule = Data::Validator->new(
-        app_name => +{ isa => 'Str' },
-        pages    => +{ isa => 'ArrayRef[Str]' },
-        prefix   => +{ isa => 'Str', default => 'dispatch_' }
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
+
+    $args->{prefix} ||= 'dispatch_';
 
     bless(+{ %$args } => $class);
 }
@@ -48,10 +43,8 @@ sub is_dispatch_enable {
 }
 
 sub dispatch {
-    state $rule = Data::Validator->new(
-        env => +{ isa => 'HashRef' },
-    )->with('Method');
-    my($self, $args) = $rule->validate(@_);
+    my $self  = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     my $route = $self->router($args->{env});
     return $self->app_pages->status_404 unless($route && $route->{pages} && $route->{dispatch});

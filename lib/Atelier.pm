@@ -2,8 +2,6 @@ package Atelier;
 use strict;
 use warnings;
 
-use 5.10.0;
-use Data::Validator;
 use Module::Find;
 use Module::Load;
 
@@ -16,12 +14,9 @@ our $VERSION = '0.02';
 }
 
 sub create_app {
-    state $rule = Data::Validator->new(
-        app    => +{ isa => 'Str' },
-        prefix => +{ isa => 'Str', optional => 1 }
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
-    
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
+
     my $pages_class      = "$args->{app}::Pages";
     my $dispatcher_class = "$args->{app}::Dispatcher";
 

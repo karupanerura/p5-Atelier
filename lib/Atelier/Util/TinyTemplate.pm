@@ -2,16 +2,11 @@ package Atelier::Util::TinyTemplate;
 use strict;
 use warnings;
 
-use 5.10.0;
-use Data::Validator;
 require Carp;
 
 sub variable {
-    state $rule = Data::Validator->new(
-        name      => +{ isa => 'Str' },
-        variables => +{ isa => 'HashRef' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
     my $name = $args->{name};
 
     return "__${name}__" if($name =~ m{^(?:PACKAGE|FILE|LINE|END|DATA)$});
@@ -20,11 +15,8 @@ sub variable {
 }
 
 sub render_string {
-    state $rule = Data::Validator->new(
-        template  => +{ isa => 'Str' },
-        variables => +{ isa => 'HashRef' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     my %variables;
     foreach my $key (keys %{$args->{variables}}) {

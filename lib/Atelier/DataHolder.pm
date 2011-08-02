@@ -2,8 +2,6 @@ package Atelier::DataHolder;
 use strict;
 use warnings;
 
-use 5.10.0;
-use Data::Validator;
 use Atelier::Util qw/datacopy wantclass/;
 
 BEGIN {
@@ -22,16 +20,8 @@ sub import {
 }
 
 sub mk_dataholder {
-    state $rule = Data::Validator->new(
-        create_to       => { isa => 'Str' },
-        mk_classdatas   => { isa => 'ArrayRef[Str]', optional => 1, },
-        mk_translucents => { isa => 'ArrayRef[Str]', optional => 1, },
-        mk_accessors    => { isa => 'ArrayRef[Str]', optional => 1, },
-        mk_classdata    => { isa => 'Str', optional => 1, },
-        mk_translucent  => { isa => 'Str', optional => 1, },
-        mk_accessor     => { isa => 'Str', optional => 1, },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     my @dataholders = grep { m{^mk_} } keys(%$args);
     foreach my $dataholder (@dataholders) {
@@ -45,11 +35,8 @@ sub mk_dataholder {
 
 sub mk_classdatas { shift->_mk_classdatas(create_to => scalar(caller), name => \@_) }
 sub _mk_classdatas {
-    state $rule = Data::Validator->new(
-        create_to => { isa => 'Str' },
-        name      => { isa => 'ArrayRef[Str]' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     foreach my $name ( @{$args->{name}} ){
         $class->_mk_classdata(
@@ -60,11 +47,8 @@ sub _mk_classdatas {
 }
 
 sub _mk_classdata {
-    state $rule = Data::Validator->new(
-        create_to => { isa => 'Str' },
-        name      => { isa => 'Str' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
     
     my $create_to = $args->{create_to};
     my $name      = $args->{name};
@@ -84,11 +68,8 @@ sub _mk_classdata {
 
 sub mk_translucents { shift->_mk_translucents(create_to => scalar(caller), name => \@_) }
 sub _mk_translucents {
-    state $rule = Data::Validator->new(
-        create_to => { isa => 'Str' },
-        name      => { isa => 'ArrayRef[Str]' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     foreach my $name ( @{$args->{name}} ){
         $class->_mk_translucent(
@@ -99,11 +80,8 @@ sub _mk_translucents {
 }
 
 sub _mk_translucent {
-    state $rule = Data::Validator->new(
-        create_to => { isa => 'Str' },
-        name      => { isa => 'Str' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
     
     my $create_to = $args->{create_to};
     my $name      = $args->{name};
@@ -128,11 +106,8 @@ sub _mk_translucent {
 
 sub mk_accessors { shift->_mk_accessors(create_to => scalar(caller), name => \@_) }
 sub _mk_accessors {
-    state $rule = Data::Validator->new(
-        create_to => { isa => 'Str' },
-        name      => { isa => 'ArrayRef[Str]' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     foreach my $name ( @{$args->{name}} ){
         $class->_mk_accessor(
@@ -143,14 +118,10 @@ sub _mk_accessors {
 }
 
 sub _mk_accessor {
-    state $rule = Data::Validator->new(
-        create_to  => { isa => 'Str' },
-        name       => { isa => 'Str' },
-        permission => { isa => 'Str', default => 'rw' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
-    my $permission = $args->{permission};
+    my $permission = $args->{permission} || 'rw';
     my $name       = $args->{name};
 
     Atelier::Util::add_method(

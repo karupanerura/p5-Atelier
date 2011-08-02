@@ -2,20 +2,16 @@ package Atelier::Flavor;
 use strict;
 use warnings;
 
-use 5.10.0;
 use Cwd;
 use File::Path;
-use Data::Validator;
 
 sub flavor_name { die 'This is abstract method' }
 sub file_list   { die 'This is abstract method' }
 sub dir_list    { die 'This is abstract method' }
 
 sub new {
-    state $rule = Data::Validator->new(
-        charset => +{ isa => 'Str' }
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     bless(+{ %$args } => $class);
 }

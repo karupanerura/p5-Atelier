@@ -2,10 +2,8 @@ package Atelier::Pages;
 use strict;
 use warnings;
 
-use 5.10.0;
 use Carp;
 use Encode;
-use Data::Validator;
 use Atelier::Util;
 
 use Atelier::DataHolder (
@@ -36,12 +34,8 @@ sub init {
 }
 
 sub new {
-    state $rule = Data::Validator->new(
-        env      => 'HashRef',
-        dispatch => 'Str',
-        args     => 'HashRef',
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     bless(+{ %$args } => $class);
 }

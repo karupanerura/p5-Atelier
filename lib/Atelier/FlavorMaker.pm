@@ -2,9 +2,6 @@ package Atelier::FlavorMaker;
 use strict;
 use warnings;
 
-use 5.10.0;
-use Data::Validator;
-
 use File::Find;
 use Fcntl ':flock';
 use Encode;
@@ -13,13 +10,9 @@ use Data::Dumper;
 use Atelier::Util::TinyTemplate;
 
 sub new {
-    state $rule = Data::Validator->new(
-        name     => +{ isa => 'Str' },
-        dir      => +{ isa => 'Str' },
-        app_name => +{ isa => 'Str' },
-        charset  => +{ isa => 'Str', default => 'utf8' },
-    )->with('Method');
-    my($class, $args) = $rule->validate(@_);
+    my $class = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
+    $args->{charset} ||= 'utf8';
 
     bless(+{ %$args } => $class);
 }
@@ -65,10 +58,8 @@ sub initalize {
 }
 
 sub add_file {
-    state $rule = Data::Validator->new(
-        path => +{ isa => 'Str' },
-    )->with('Method');
-    my($self, $args) = $rule->validate(@_);
+    my $self  = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     open(my $fh, '<', $args->{path}) or die "Can't open file: $!";
     flock($fh, LOCK_SH);
@@ -85,10 +76,8 @@ sub add_file {
 }
 
 sub add_dir {
-    state $rule = Data::Validator->new(
-        path => +{ isa => 'Str' },
-    )->with('Method');
-    my($self, $args) = $rule->validate(@_);
+    my $self  = shift;
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     my $path     = $args->{path};
     my $app_name = quotemeta($self->{app_name});
