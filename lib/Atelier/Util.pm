@@ -33,6 +33,40 @@ sub get_all_subs($) { ## no critic
     }
 }
 
+sub get_all_isa($) { ## no critic
+    _get_all_isa(shift, +{});
+}
+
+sub _get_all_isa {
+    my($class, $searched_hash) = @_;
+
+    my @class_isa = do {
+        no strict 'refs';
+        grep { not exists $searched_hash->{$_} } @{"${class}::ISA"};
+    };
+
+    foreach my $isa (@class_isa) {
+        next if(exists $searched_hash->{$isa});
+        _get_all_isa($isa, $searched_hash);
+        $searched_hash->{$isa} = 1;
+    }
+
+    keys %$searched_hash;
+}
+
+sub get_all_methods ($) { ## no critic
+    my $class = shift;
+
+    my @class_isa = (get_all_isa($class), $class);
+
+    my @methods = ();
+    foreach my $klass (@class_isa) {
+        push(@methods, get_all_subs($klass));
+    }
+
+    wantarray ? @methods : \@methods;
+}
+
 sub add_method {
     state $rule = Data::Validator->new(
         add_to => +{ isa => 'Str' },
