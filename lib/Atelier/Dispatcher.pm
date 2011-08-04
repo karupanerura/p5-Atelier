@@ -16,7 +16,10 @@ sub new {
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
 
-    bless(+{ %$args } => $class);
+    my $self = bless(+{ %$args } => $class);
+    $self->init_pass_list;
+
+    $self;
 }
 
 sub app_pages {
@@ -25,26 +28,29 @@ sub app_pages {
     $self->{app_pages} ||= "$self->{app_name}::Pages";
 }
 
-sub dispatches {
-    my($self, $pages) = @_;
+sub init_pass_list {
+    my $self = shift;
 
-    $self->{dispatches}{$pages} ||= do {
-        my $prefix = $self->{prefix};
-        [ grep { m{^$prefix} } Atelier::Util::get_all_subs($pages) ];
-    };
+    $self->{pass_list} = +{};
+    foreach my $klass ( @{$self->{pages}} ) {
+        $self->{pass_list}{$klass} = +{};
+        foreach my $dispatch ( $self->get_dispatches($klass) ) {
+            $self->{pass_list}{$klass}{$dispatch} = 1;
+        }
+    }
 }
 
-sub is_pages_enable {
+sub get_dispatches {
     my($self, $pages) = @_;
 
-    $self->{pages_enable}{$pages} ||= ($pages ~~ $self->{pages}); # smart matching
+    my $prefix = $self->{prefix};
+    grep { m{^$prefix} } Atelier::Util::get_all_methods($pages);
 }
 
 sub is_dispatch_enable {
     my($self, $pages, $dispatch) = @_;
-    return unless $self->is_pages_enable($pages);
 
-    $self->{dispatch_enable}{$pages}{$dispatch} ||= ($dispatch ~~ $self->dispatches($pages)); # smart matching
+    exists($self->{pass_list}{$pages}) && exists($self->{pass_list}{$pages}{$dispatch});
 }
 
 sub dispatch {

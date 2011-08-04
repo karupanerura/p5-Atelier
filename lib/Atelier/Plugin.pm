@@ -22,10 +22,10 @@ sub import {
         my @methods =
             grep { not m{^_} }
             grep { not m{^(import|AUTOLOAD|DESTROY)$} }
-            Atelier::Util::get_all_subs($class);
+            Atelier::Util::get_all_methods($class);
 
         foreach my $method (@methods) {
-            *{"${caller}::${method}"} = *{${"${class}::"}{$method}}{CODE};
+            *{"${caller}::${method}"} = $class->can($method);
         }
 
         if ($class->can('__post_export')) {
