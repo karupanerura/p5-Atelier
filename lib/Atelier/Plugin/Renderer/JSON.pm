@@ -1,4 +1,4 @@
-package Atelier::Plugin::JSON;
+package Atelier::Plugin::Renderer::JSON;
 use strict;
 use warnings;
 

@@ -1,4 +1,4 @@
-package Atelier::Plugin::Tiffany;
+package Atelier::Plugin::Renderer::Tiffany;
 use strict;
 use warnings;
 
