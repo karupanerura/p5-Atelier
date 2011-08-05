@@ -1,7 +1,7 @@
 package TestPrj5::Pages::Yaml;
 use parent qw/TestPrj5::Pages/;
 
-use Atelier::Plugin::Config::YAML;
+eval "use Atelier::Plugin::Config::YAML";
 
 sub dispatch_index {
     my $self = shift;

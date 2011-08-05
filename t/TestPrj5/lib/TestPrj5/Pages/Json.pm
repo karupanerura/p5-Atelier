@@ -1,7 +1,7 @@
 package TestPrj5::Pages::Json;
 use parent qw/TestPrj5::Pages/;
 
-use Atelier::Plugin::Config::JSON;
+eval "use Atelier::Plugin::Config::JSON";
 
 sub dispatch_index {
     my $self = shift;
