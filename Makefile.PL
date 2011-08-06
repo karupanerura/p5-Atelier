@@ -23,13 +23,21 @@ requires 'File::Path';
 requires 'File::Spec';
 
 features(
-    'if use Atelier::Plugin::Tiffany' => [
+    'if use Atelier::Plugin::Renderer::Tiffany' => [
         -default => 0,
         recommends('Tiffany'),
     ],
-    'if use Atelier::Plugin::JSON' => [
+    'if use Atelier::Plugin::Renderer::JSON' => [
         -default => 0,
         recommends('JSON'),
+    ],
+    'if use Atelier::Plugin::Config::JSON' => [
+        -default => 0,
+        recommends('JSON'),
+    ],
+    'if use Atelier::Plugin::Config::YAML' => [
+        -default => 0,
+        recommends('YAML::Syck'),
     ],
     'if use Atelier::Dispather::RouterSimple' => [
         -default => 0,

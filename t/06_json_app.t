@@ -22,7 +22,7 @@ test_psgi
         my $cb = shift;
         my $req = HTTP::Request->new('GET' => 'http://localhost/');
         my $res = $cb->($req);
-        is $res->content, 'Hello,world';
+        is $res->content, 'Hello,world.';
     };
 
 test_psgi

@@ -88,7 +88,7 @@ use parent qw/Atelier::Pages/;
 use File::Spec;
 
 my $suffix = \'.html\';
-use Atelier::Plugin::Tiffany (
+use Atelier::Plugin::Renderer::Tiffany (
     engine => \'Text::Xslate\',
     option => +{
         path   => [ File::Spec->catfile(__PACKAGE__->base_dir, \'tmpl\') ],

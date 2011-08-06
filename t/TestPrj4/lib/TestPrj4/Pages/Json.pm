@@ -4,7 +4,7 @@ use warnings;
 
 use parent qw/TestPrj4::Pages/;
 
-use Atelier::Plugin::JSON;
+use Atelier::Plugin::Renderer::JSON;
 
 __PACKAGE__->stash(+{
     hello => 'world'
