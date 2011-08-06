@@ -128,8 +128,10 @@ sub finalize {
 }
 
 sub status_403 {
+    my $self    = shift;
     my $message = '403 Forbidden';
 
+    $self->renderer(undef) if ref($self);
     [
         403,
         [
@@ -141,8 +143,10 @@ sub status_403 {
 }
 
 sub status_404 {
+    my $self    = shift;
     my $message = '404 Not Found';
 
+    $self->renderer(undef) if ref($self);
     [
         404,
         [
@@ -156,6 +160,7 @@ sub status_404 {
 sub redirect {
     my ($self, $uri, $scheme) = @_;
 
+    $self->renderer(undef);
     [
        302,
        [
