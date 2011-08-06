@@ -2,6 +2,8 @@ package Atelier::Plugin::TmplDispatcher::PathInfo;
 use strict;
 use warnings;
 
+use parent qw/Atelier::Plugin/;
+
 sub __pre_export {
     my $class  = shift;
     my $args   = (@_ == 1) ? $_[0] : +{ @_ };
