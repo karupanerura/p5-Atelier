@@ -7,7 +7,7 @@ use parent qw/TestPrj4::Pages/;
 sub dispatch_index {
     my $self = shift;
 
-    my $message = $self->encoder->encode('Hello,world');
+    my $message = $self->encoder->encode('Hello,world.');
 
     [
         200,

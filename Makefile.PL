@@ -32,6 +32,14 @@ features(
         -default => 0,
         recommends('JSON'),
     ],
+    'if use Atelier::Plugin::Config::JSON' => [
+        -default => 0,
+        recommends('JSON'),
+    ],
+    'if use Atelier::Plugin::Config::YAML' => [
+        -default => 0,
+        recommends('YAML::Syck'),
+    ],
     'if use Atelier::Dispather::RouterSimple' => [
         -default => 0,
         recommends('Router::Simple'),
