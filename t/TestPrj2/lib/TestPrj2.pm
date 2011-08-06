@@ -2,7 +2,7 @@ package TestPrj2;
 use strict;
 use warnings;
 
-require 5.010000;
+require 5.006_000;
 
 our $VERSION = '0.01';
 
