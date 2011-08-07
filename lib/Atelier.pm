@@ -98,6 +98,8 @@ Kenta Sato E<lt>karupa@cpan.orgE<gt>
 
 =head1 SEE ALSO
 
+L<Router::Simple> L<Tiffany>
+
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify
