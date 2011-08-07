@@ -164,7 +164,7 @@ sub redirect {
     [
        302,
        [
-          'Location' => $self->make_absolute_uri($uri, $scheme),
+          'Location' => $self->make_absolute_url($uri, $scheme),
        ],
        []
     ];
@@ -173,7 +173,7 @@ sub redirect {
 sub make_absolute_url {
     my($self, $uri, $scheme) = @_;
 
-    return ($uri =~ m{^https?://}) ? $uri : $self->make_base_uri($scheme) . $uri;
+    return ($uri =~ m{^https?://}) ? $uri : $self->make_base_url($scheme) . $uri;
 }
 
 sub make_base_url {
