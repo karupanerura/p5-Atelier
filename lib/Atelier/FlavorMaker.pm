@@ -17,6 +17,7 @@ sub new {
         name     => +{ isa => 'Str' },
         dir      => +{ isa => 'Str' },
         app_name => +{ isa => 'Str' },
+        version  => +{ isa => 'Str' },
         charset  => +{ isa => 'Str', default => 'utf8' },
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
@@ -117,9 +118,10 @@ sub create_flavor {
     Atelier::Util::TinyTemplate->render_string(
         template  => join('', <DATA>),
         variables => +{
-            flavor_name => $self->{name},
-            dir_list    => $self->{dir_list},
-            file_list   => $self->{file_list},
+            flavor_version => $self->{version},
+            flavor_name    => $self->{name},
+            dir_list       => $self->{dir_list},
+            file_list      => $self->{file_list},
         },
     );
 }
@@ -138,6 +140,8 @@ use strict;
 use warnings;
 
 use parent 'Atelier::Flavor';
+
+our $VERSION = '__FLAVOR_VERSION__';
 
 sub flavor_name { '__FLAVOR_NAME__' }
 

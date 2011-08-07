@@ -4,6 +4,8 @@ use warnings;
 
 use parent 'Atelier::Flavor';
 
+our $VERSION = '0.01';
+
 sub flavor_name { 'Minimum' }
 
 sub dir_list {
