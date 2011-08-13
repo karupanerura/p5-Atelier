@@ -20,20 +20,17 @@ use Atelier::DataHolder (
 __PACKAGE__->mime_type('text/html');
 __PACKAGE__->charset('UTF-8');
 __PACKAGE__->is_text(1);
+__PACKAGE__->stash(+{});
 
 sub import {
     my $class = shift;
 
     Carp::croak(q{This module can't use. This is parent module.}) if ($class eq __PACKAGE__) ;
 
-    $class->init(@_);
+    $class->class_initalize(@_);
 }
 
-sub init {
-    my $class = shift;
-
-    $class->stash(+{}) unless($class->stash);
-}
+sub class_initalize {} # can override
 
 sub new {
     state $rule = Data::Validator->new(
