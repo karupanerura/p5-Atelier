@@ -7,7 +7,7 @@ use Data::Validator;
 use Module::Find;
 use Module::Load;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 {
     our $CONTEXT; # You can localize this variable in your application.
