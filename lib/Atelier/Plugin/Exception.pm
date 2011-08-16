@@ -6,28 +6,41 @@ use parent qw/Atelier::Plugin/;
 
 use Atelier::Exception;
 use Try::Tiny;
+use Atelier::Util;
 
-sub throw    { $_[0]->throw }
-sub response { Atelier::Exception::PSGIResponse->response($_[0]) }
+sub throw    ($) { $_[0]->throw } ## no critic
+sub response ($) { Atelier::Exception::PSGIResponse->response($_[0]) } ## no critic
 
 # override
-sub exec {
-    my $self = shift;
+sub __pre_export {
+    my $class = shift;
+    my $pages = pages();
 
-    my $res = try {
-        $self->SUPER::exec;
-    }
-    catch {
-        my $e = $_;
-        if ($e->isa('Atelier::Exception::PSGIResponse')) {
-            $res = $e->to_response;
-        }
-        else {
-            die $e;
-        }
-    };
+    my $super = $pages->can('exec');
+    no warnings 'redefine';
+    Atelier::Util::add_method(
+        add_to => pages(),
+        name   => 'exec',
+        method => sub {
+            my $self = shift;
 
-    $res;
+            my $res;
+            try {
+                $res = $super->($self);
+            }
+            catch {
+                my $e = $_;
+                if ($e->isa('Atelier::Exception::PSGIResponse')) {
+                    $res = $e->to_response;
+                }
+                else {
+                    die $e;
+                }
+            };
+
+            $res;
+        }
+    );
 }
 
 1;

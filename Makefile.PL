@@ -11,6 +11,7 @@ requires 'parent';
 requires 'Plack';
 requires 'Module::Find';
 requires 'Data::Validator';
+requires 'Try::Tiny'; # this is Plack's require module
 
 requires 'Exporter';
 requires 'Module::Load';
