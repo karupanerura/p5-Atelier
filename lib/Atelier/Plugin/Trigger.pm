@@ -22,7 +22,7 @@ sub call_trigger {
     state $rule = Data::Validator->new(
         name => +{ isa => 'Str' },
         cb   => +{ isa => 'CodeRef', optional => 1 },
-    )->with('Method');
+    )->with('Method', 'Sequenced');
     my($self, $args) = $rule->validate(@_);
 
     foreach my $trigger (@{$self->trigger->{$args->{name}}}) {
@@ -36,7 +36,7 @@ sub add_trigger {
     state $rule = Data::Validator->new(
         name => +{ isa => 'Str' },
         cb   => +{ isa => 'CodeRef' },
-    )->with('Method');
+    )->with('Method', 'Sequenced');
     my($self, $args) = $rule->validate(@_);
 
     push(@{ $self->trigger->{$args->{name}} }, $args->{cb});

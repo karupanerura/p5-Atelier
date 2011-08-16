@@ -16,17 +16,7 @@ use Atelier::Plugin::Renderer::Tiffany (
 );
 
 use Atelier::Plugin::Trigger;
-__PACKAGE__->add_trigger(
-    name => 'BEFORE_DISPATCH',
-    cb   => sub {
-        my $self = shift;
-
-        my $template = $self->env->{PATH_INFO};
-        $template =~ s{/$}{/index};
-        $template =~ s{^/}{};
-        $self->template($template . $suffix);
-    },
-);
+use Atelier::Plugin::TmplDispatcher::PathInfo;
 
 sub create_request { Plack::Request->new(shift->env) }
 

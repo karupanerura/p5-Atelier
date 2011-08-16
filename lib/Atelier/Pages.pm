@@ -80,15 +80,15 @@ sub add_trigger  { Carp::croak('You have to use Atelier::Plugin::Trigger if you 
 sub exec {
     my $self = shift;
 
-    $self->call_trigger(name => 'BEFORE_DISPATCH');
+    $self->call_trigger('BEFORE_DISPATCH');
     my $result = $self->run_dispatch;
-    $self->call_trigger(name => 'AFTER_DISPATCH');
+    $self->call_trigger('AFTER_DISPATCH');
 
     my $res = $self->renderer ?
         $self->finalize:
         $result;
 
-    $self->call_trigger(name => 'RESPONSE_FILTER', cb => sub { shift->($self, $res) });
+    $self->call_trigger('RESPONSE_FILTER' => sub { shift->($self, $res) });
 
     $res;
 }

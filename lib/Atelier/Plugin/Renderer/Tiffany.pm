@@ -32,13 +32,10 @@ sub render_tiffany {
     my $self = shift;
     my $html = $self->tiffany->render($self->template, $self->stash);
 
-    $self->call_trigger(
-        name => 'HTML_FILTER',
-        cb => sub {
-            my $code = shift;
-            $html = $code->($self, $html);
-        }
-    );
+    $self->call_trigger('HTML_FILTER' => sub {
+        my $code = shift;
+        $html = $code->($self, $html);
+    });
 
     return $html;
 }
