@@ -3,10 +3,17 @@ use strict;
 use warnings;
 
 use Carp;
-use overload '""' => \&inspect;
+use Atelier::DataHolder (
+    mk_classdatas => [qw/do_trace/],
+);
 
-sub throw {
-    my ($class, %args) = @_;
+use overload '""' => \&stringify;
+
+__PACKAGE__->do_trace(0);
+
+# borrowed from Sledge::Exception
+sub new {
+    my $class = shift;
 
     # XXX: エラーの分類別にサブクラスを作るべきなの
     # 直接このクラス使ったらダメよ
@@ -14,37 +21,86 @@ sub throw {
         Carp::croak("Don't use $class directly. please make subclass");
     }
 
-    my ($caller, $call_path, $line_number) = caller(1);
-    $args{caller} = $call_path;
-    $args{line_number} = $line_number;
+    my $args  = @_ ?
+        (@_ == 1 ? $_[0] : +{ @_ }) :
+        +{ msg => $class->description };
+    my $self = bless(+{ %$args } => $class);
 
-    Carp::croak($class->new(%args));
-}
+    if ($class->do_trace) {
+        my $i = 1;
+        my($pkg, $file, $line) = caller($i++);
+        my @stacktrace;
+        while ($pkg) {
+            push @stacktrace, Atelier::Exception::StackTrace->new(
+                pkg  => $pkg,
+                file => $file,
+                line => $line,
+            );
+            ($pkg, $file, $line) = caller($i++);
+        }
+        pop @stacktrace;
+        $self->{'-stacktrace'} = \@stacktrace;
+    }
 
-sub new {
-    my ($class, %args) = @_;
-
-    my $self = \%args;
-    bless $self, $class;
     return $self;
 }
 
-sub msg {
-    $_[0]->{msg};
+sub stacktrace {
+    my $self = shift;
+    return $self->{'-stacktrace'} || [];
 }
 
-sub inspect {
+sub description { 'Atelier core exception (Abstract)' }
+
+sub throw { Carp::croak(shift->new(@_)) }
+
+sub stringify {
     my $self = shift;
-    sprintf("<#%s: msg: %s> at %s line %s\n", ref $self, $self->msg, $self->{caller}, $self->{line_number});
+
+    my $text = exists $self->{msg} ? $self->{msg} : 'Died';
+    foreach my $trace ( @{$self->stacktrace} ) {
+        $text .= sprintf(" at %s(%s) line %d.\n", $trace->pkg, $trace->file, $trace->line);
+    }
+
+    return $text;
 }
+
+package Atelier::Exception::StackTrace;
+use strict;
+use warnings;
+
+sub new {
+    my($class, %p) = @_;
+    bless \%p, $class;
+}
+
+sub pkg  { shift->{pkg} }
+sub file { shift->{file} }
+sub line { shift->{line} }
 
 package Atelier::Exception::PSGIResponse;
 use strict;
 use warnings;
 
+use Carp;
 use parent -norequire, 'Atelier::Exception';
 
-sub response    { shift->throw(@_) }
-sub to_response { $_[0]->msg       }
+sub response {
+    my $class = shift;
+    my $response = shift;
+
+    Carp::croak($class->new(response => $response));
+}
+
+sub to_response { $_[0]->{response} }
+
+package Atelier::Exception::Sample;
+use strict;
+use warnings;
+
+use Carp;
+use parent -norequire, 'Atelier::Exception';
+
+sub description { 'Message' }
 
 1;
