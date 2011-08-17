@@ -12,6 +12,7 @@ requires 'Plack';
 requires 'Module::Find';
 requires 'Data::Validator';
 
+# core module after perl 5.10.0
 requires 'Exporter';
 requires 'Module::Load';
 requires 'Clone';
