@@ -4,7 +4,7 @@ use warnings;
 
 use parent 'Atelier::Flavor';
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub flavor_name { 'Basic' }
 
@@ -97,7 +97,7 @@ use File::Spec;
 
 use Atelier::Plugin::Trigger;
 use Atelier::Plugin::TmplDispatcher::PathInfo;
-use Atelier::Plugin::Tiffany (
+use Atelier::Plugin::Renderer::Tiffany (
     engine => \'Text::Xslate\',
     option => +{
         path   => [ File::Spec->catfile(__PACKAGE__->base_dir, \'tmpl\') ],
