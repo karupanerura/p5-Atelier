@@ -2,7 +2,7 @@ package Atelier::Exception;
 use strict;
 use warnings;
 
-use Carp;
+use Carp ();
 use Atelier::DataHolder (
     mk_classdatas => [qw/do_trace/],
 );
@@ -21,7 +21,7 @@ sub new {
         Carp::croak("Don't use $class directly. please make subclass");
     }
 
-    my $args  = @_ ?
+    my $args = @_ ?
         (@_ == 1 ? $_[0] : +{ @_ }) :
         +{ msg => $class->description };
     my $self = bless(+{ %$args } => $class);
@@ -51,13 +51,12 @@ sub stacktrace {
 }
 
 sub description { 'Atelier core exception (Abstract)' }
-
 sub throw { Carp::croak(shift->new(@_)) }
 
 sub stringify {
     my $self = shift;
 
-    my $text = exists $self->{msg} ? $self->{msg} : 'Died';
+    my $text = exists $self->{msg} ? $self->{msg} : $self->description;
     foreach my $trace ( @{$self->stacktrace} ) {
         $text .= sprintf(" at %s(%s) line %d.\n", $trace->pkg, $trace->file, $trace->line);
     }
@@ -82,7 +81,6 @@ package Atelier::Exception::PSGIResponse;
 use strict;
 use warnings;
 
-use Carp;
 use parent -norequire, 'Atelier::Exception';
 
 sub response {
@@ -94,13 +92,12 @@ sub response {
 
 sub to_response { $_[0]->{response} }
 
-package Atelier::Exception::Sample;
+package Atelier::Exception::Unknown;
 use strict;
 use warnings;
 
-use Carp;
 use parent -norequire, 'Atelier::Exception';
 
-sub description { 'Message' }
+sub description { 'Unknown Exception' }
 
 1;
