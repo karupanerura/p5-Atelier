@@ -6,9 +6,7 @@ use 5.10.0;
 use Data::Validator;
 use Atelier::Util qw/datacopy wantclass/;
 
-BEGIN {
-    require Carp; # require only(don't import)
-}
+use Carp ();
 
 sub import {
     return if(@_ == 1);

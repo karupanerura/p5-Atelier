@@ -2,7 +2,7 @@ package Atelier::Plugin;
 use strict;
 use warnings;
 
-use Carp;
+use Carp ();
 use Atelier::Util;
 
 sub import {
