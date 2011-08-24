@@ -11,6 +11,7 @@ GetOptions(
     'dir=s'      => \my $dir,
     'app_name=s' => \my $app_name,
     'version=s'  => \my $version,
+    'help'       => \my $help,
 );
 pod2usage(0) if($help);
 $dir ||= '.';

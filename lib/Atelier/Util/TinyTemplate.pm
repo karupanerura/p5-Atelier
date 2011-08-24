@@ -4,7 +4,7 @@ use warnings;
 
 use 5.10.0;
 use Data::Validator;
-require Carp;
+use Carp ();
 
 sub variable {
     state $rule = Data::Validator->new(
