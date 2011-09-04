@@ -72,12 +72,7 @@ sub add_method {
 }
 
 sub rewrite_method {
-    state $rule = Data::Validator->new(
-        rewrite_to => +{ isa => 'Str' },
-        name       => +{ isa => 'Str' },
-        method     => +{ isa => 'CodeRef' },
-    );
-    my $args = $rule->validate(@_);
+    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
 
     {
         no strict   'refs';     ## no critic

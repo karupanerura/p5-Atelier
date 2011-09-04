@@ -24,7 +24,7 @@ sub call_trigger {
     };
 
     foreach my $trigger (@{$self->trigger->{$args->{name}}}) {
-        exists($args->{cb}) ?
+        defined($args->{cb}) ?
             $args->{cb}->($trigger):
             $trigger->($self);
     }

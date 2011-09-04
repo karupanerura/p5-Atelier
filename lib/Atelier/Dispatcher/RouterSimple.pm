@@ -26,8 +26,7 @@ sub import {
             $router_simple->connect(@_, +{ method => [qw/HEAD GET/] });
         },
         post => sub ($$) { ## no critic
-            state $param_rule = Data::Validator->new(
-                $router_simple->connect(@_, +{ method => 'POST' });
+            $router_simple->connect(@_, +{ method => 'POST' });
         },
         connect => sub ($$) { ## no critic
             # XXX: This is DEPRECATED. You should use any, get, post.
