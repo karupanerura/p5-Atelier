@@ -15,8 +15,6 @@ our(@EXPORT_OK, %EXPORT_TAGS);
     __PACKAGE__->get_all_subs;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-use Data::Clone ();
-
 sub get_all_subs($) { ## no critic
     my $class = shift;
 
@@ -91,10 +89,6 @@ sub base_dir($) { ## no critic
     else {
         File::Spec->rel2abs('./');
     }
-}
-
-sub datacopy($) { ## no critic
-    ref($_[0]) ? Data::Clone::clone($_[0]) : $_[0]
 }
 
 sub wantclass($) { ## no critic
