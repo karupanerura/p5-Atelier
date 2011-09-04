@@ -22,23 +22,53 @@ sub import {
     );
 
     my %export_sugars = (
-        connect => sub ($$) { ## no critic
+        any => sub ($$) { ## no critic
             state $param_rule = Data::Validator->new(
                 pages    => +{ isa => 'Str', },
                 dispatch => +{ isa => 'Str', optional => 1 },
-                method   => +{ isa => 'Str', default  => 'ANY' },
             );
             $_[1] = $param_rule->validate(%{ $_[1] });
             $router_simple->connect(@_);
         },
-        submapper => sub ($$) { ## no critic
+        get => sub ($$) { ## no critic
+            state $param_rule = Data::Validator->new(
+                pages    => +{ isa => 'Str', },
+                dispatch => +{ isa => 'Str', optional => 1 },
+            );
+            $_[1] = $param_rule->validate(%{ $_[1] });
+            $router_simple->connect(@_, +{ method => [qw/HEAD GET/] });
+        },
+        post => sub ($$) { ## no critic
+            state $param_rule = Data::Validator->new(
+                pages    => +{ isa => 'Str', },
+                dispatch => +{ isa => 'Str', optional => 1 },
+            );
+            $_[1] = $param_rule->validate(%{ $_[1] });
+            $router_simple->connect(@_, +{ method => 'POST' });
+        },
+        connect => sub ($$) { ## no critic
+            # XXX: This is DEPRECATED. You should use any, get, post.
             state $param_rule = Data::Validator->new(
                 pages    => +{ isa => 'Str', },
                 dispatch => +{ isa => 'Str', optional => 1 },
                 method   => +{ isa => 'Str', default  => 'ANY' },
             );
             $_[1] = $param_rule->validate(%{ $_[1] });
-            $router_simple->submapper(@_);
+            $_[1]->{method} = uc($_[1]->{method});
+            my $option = ($_[1]->{method} eq 'ANY') ? +{} : +{ method => $_[1]->{method} };
+            $router_simple->connect(@_, $option);
+        },
+        submapper => sub ($$) { ## no critic
+            # XXX: This is DEPRECATED. You should use any, get, post.
+            state $param_rule = Data::Validator->new(
+                pages    => +{ isa => 'Str', },
+                dispatch => +{ isa => 'Str', optional => 1 },
+                method   => +{ isa => 'Str', default  => 'ANY' },
+            );
+            $_[1] = $param_rule->validate(%{ $_[1] });
+            $_[1]->{method} = uc($_[1]->{method});
+            my $option = ($_[1]->{method} eq 'ANY') ? +{} : +{ method => $_[1]->{method} };
+            $router_simple->submapper(@_, $option);
         },
     );
 
@@ -57,12 +87,7 @@ sub import {
 sub router {
     my($self, $env) = @_;
 
-    my $param  = $self->router_simple->match($env);
-    return unless($param);
-
-    my $method = uc( delete $param->{method} );
-
-    return $param if (($method eq 'ANY') or ($method eq $env->{REQUEST_METHOD}));
+    return $self->router_simple->match($env);
 }
 
 1;
