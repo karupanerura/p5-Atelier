@@ -17,18 +17,16 @@ sub __pre_export {
     my $class = shift;
 
     if ( pages()->isa('Atelier::Pages') ) {
-        my $super = Atelier::Pages->can('exec');
-
-        no warnings 'redefine';
-        Atelier::Util::add_method(
-            add_to => 'Atelier::Pages',
-            name   => 'exec',
-            method => sub {
+        my $super = pages()->can('exec');
+        Atelier::Util::rewrite_method(
+            rewrite_to => 'Atelier::Pages',
+            name       => 'exec',
+            method     => sub {
                 my $self = shift;
 
                 my $res;
                 try {
-                    $res = $super->($self);
+                    $res = $self->$super();
                 }
                 catch {
                     my $e = $_;
