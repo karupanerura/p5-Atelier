@@ -77,6 +77,21 @@ sub add_method {
     }
 }
 
+sub rewrite_method {
+    state $rule = Data::Validator->new(
+        rewrite_to => +{ isa => 'Str' },
+        name       => +{ isa => 'Str' },
+        method     => +{ isa => 'CodeRef' },
+    );
+    my $args = $rule->validate(@_);
+
+    {
+        no strict   'refs';     ## no critic
+        no warnings 'redefine'; ## no critic
+        *{"$args->{rewrite_to}::$args->{name}"} = $args->{method};
+    }
+}
+
 sub base_dir($) { ## no critic
     my $path = shift;
 
