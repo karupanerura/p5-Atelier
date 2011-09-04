@@ -7,13 +7,15 @@ githubmeta;
 
 # requires '';
 
-requires 'parent';
 requires 'Plack';
 requires 'Module::Find';
+requires 'Try::Tiny'; # this is Plack's require module
+requires 'Data::Clone';
 
+# core module after perl 5.10.0
 requires 'Exporter';
+requires 'parent';
 requires 'Module::Load';
-requires 'Clone';
 requires 'Encode';
 requires 'Fcntl';
 requires 'Cwd';

@@ -1,4 +1,4 @@
 use strict;
 use Test::More tests => 1;
 
-BEGIN { use_ok '__APP_NAME__' }
+BEGIN { use_ok 'TestPrj6' }

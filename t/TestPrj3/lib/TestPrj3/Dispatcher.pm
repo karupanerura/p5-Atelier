@@ -1,17 +1,17 @@
 package TestPrj3::Dispatcher;
 use Atelier::Dispatcher::RouterSimple;
 
-connect '/' => +{
+any '/' => +{
     pages    => 'Root',
     dispatch => 'index',
 };
 
-connect '/echo/:text' => +{
+get '/echo/:text' => +{
     pages    => 'Root',
     dispatch => 'echo',
 };
 
-connect '/:dispatch/' => +{
+post '/:dispatch/' => +{
     pages    => 'Root',
 };
 

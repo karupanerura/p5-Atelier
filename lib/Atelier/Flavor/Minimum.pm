@@ -1,19 +1,20 @@
-package Atelier::Flavor::Simple;
+package Atelier::Flavor::Minimum;
 use strict;
 use warnings;
 
 use parent 'Atelier::Flavor';
 
-sub flavor_name { 'Simple' }
+our $VERSION = '0.01';
+
+sub flavor_name { 'Minimum' }
 
 sub dir_list {
     return [
-          'htdocs',
+          'config',
           'lib',
           'lib/__APP_NAME__',
           'lib/__APP_NAME__/Pages',
           't',
-          'tmpl',
           'xt'
         ];
 
@@ -32,7 +33,8 @@ use Plack::Builder;
 builder {
     enable \'Plack::Middleware::Static\',
         path => qr{^(?:/static/|/robot\\.txt$|/favicon.ico$)},
-        root => File::Spec->catdir(dirname(__FILE__), \'htdocs\');
+        root => File::Spec->catdir(dirname(__FILE__));
+    enable \'Plack::Middleware::ReverseProxy\';
 
     Atelier->create_app(
         app => \'__APP_NAME__\'
@@ -50,7 +52,7 @@ WriteMakefile(
     PREREQ_PM     => {
         \'Atelier\' => \'0.02\',
     },
-    MIN_PERL_VERSION => \'5.010000\',
+    MIN_PERL_VERSION => \'5.010_000\',
     (-d \'xt\' and $ENV{AUTOMATED_TESTING} || $ENV{RELEASE_TESTING}) ? (
         test => {
             TESTS => \'t/*.t xt/*.t\',
@@ -60,11 +62,16 @@ WriteMakefile(
 '
           },
           {
+            'config/development.pl' => '+{
+};
+'
+          },
+          {
             'lib/__APP_NAME__.pm' => 'package __APP_NAME__;
 use strict;
 use warnings;
 
-require 5.010000;
+require 5.010_000;
 
 our $VERSION = \'0.01\';
 
@@ -85,31 +92,10 @@ use strict;
 use warnings;
 
 use parent qw/Atelier::Pages/;
-use File::Spec;
 
-my $suffix = \'.html\';
-use Atelier::Plugin::Renderer::Tiffany (
-    engine => \'Text::Xslate\',
-    option => +{
-        path   => [ File::Spec->catfile(__PACKAGE__->base_dir, \'tmpl\') ],
-        syntax => \'TTerse\',
-        suffix => $suffix,
-    },
-);
+use Atelier::Plugin::Config::Perl;
 
-use Atelier::Plugin::Trigger;
-__PACKAGE__->add_trigger(
-    name => \'BEFORE_DISPATCH\',
-    cb   => sub {
-        my $self = shift;
-
-        my $template = $self->env->{PATH_INFO};
-        $template =~ s{/$}{/index};
-        $template =~ s{^/}{};
-        $self->template($template . $suffix);
-    },
-);
-
+use Plack::Request;
 sub create_request { Plack::Request->new(shift->env) }
 
 1;
@@ -122,7 +108,17 @@ use parent qw/__APP_NAME__::Pages/;
 sub dispatch_index {
     my $self = shift;
 
-    $self->stash->{message} = \'Hello,world\';
+    my $message = \'Hello,world.\';
+
+    my $content = $self->encoder->encode($message);
+    return [
+        200,
+        [
+         \'Content-Type\'   => \'text/plain; charset=utf8\',
+         \'Content-Length\' => length($content),
+        ],
+        [$content]
+    ];
 }
 
 1;
@@ -133,18 +129,6 @@ sub dispatch_index {
 use Test::More tests => 1;
 
 BEGIN { use_ok \'__APP_NAME__\' }
-'
-          },
-          {
-            'tmpl/index.html' => '<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>[% message %]</title>
-  </head>
-  <body>
-    <p>[% message %]</p>
-  </body>
-</html>
 '
           },
           {

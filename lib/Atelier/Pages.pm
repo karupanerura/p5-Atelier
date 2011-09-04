@@ -2,7 +2,7 @@ package Atelier::Pages;
 use strict;
 use warnings;
 
-use Carp;
+use Carp ();
 use Encode;
 use Atelier::Util;
 
@@ -18,20 +18,17 @@ use Atelier::DataHolder (
 __PACKAGE__->mime_type('text/html');
 __PACKAGE__->charset('UTF-8');
 __PACKAGE__->is_text(1);
+__PACKAGE__->stash(+{});
 
 sub import {
     my $class = shift;
 
     Carp::croak(q{This module can't use. This is parent module.}) if ($class eq __PACKAGE__) ;
 
-    $class->init(@_);
+    $class->class_initalize(@_);
 }
 
-sub init {
-    my $class = shift;
-
-    $class->stash(+{}) unless($class->stash);
-}
+sub class_initalize {} # can override
 
 sub new {
     my $class = shift;
@@ -77,15 +74,15 @@ sub add_trigger  { Carp::croak('You have to use Atelier::Plugin::Trigger if you 
 sub exec {
     my $self = shift;
 
-    $self->call_trigger(name => 'BEFORE_DISPATCH');
+    $self->call_trigger('BEFORE_DISPATCH');
     my $result = $self->run_dispatch;
-    $self->call_trigger(name => 'AFTER_DISPATCH');
+    $self->call_trigger('AFTER_DISPATCH');
 
     my $res = $self->renderer ?
         $self->finalize:
         $result;
 
-    $self->call_trigger(name => 'RESPONSE_FILTER', cb => sub { shift->($self, $res) });
+    $self->call_trigger('RESPONSE_FILTER' => sub { shift->($self, $res) });
 
     $res;
 }
@@ -122,8 +119,10 @@ sub finalize {
 }
 
 sub status_403 {
+    my $self    = shift;
     my $message = '403 Forbidden';
 
+    $self->renderer(undef) if ref($self);
     [
         403,
         [
@@ -135,8 +134,10 @@ sub status_403 {
 }
 
 sub status_404 {
+    my $self    = shift;
     my $message = '404 Not Found';
 
+    $self->renderer(undef) if ref($self);
     [
         404,
         [
@@ -150,10 +151,11 @@ sub status_404 {
 sub redirect {
     my ($self, $uri, $scheme) = @_;
 
+    $self->renderer(undef);
     [
        302,
        [
-          'Location' => $self->make_absolute_uri($uri, $scheme),
+          'Location' => $self->make_absolute_url($uri, $scheme),
        ],
        []
     ];
@@ -162,7 +164,7 @@ sub redirect {
 sub make_absolute_url {
     my($self, $uri, $scheme) = @_;
 
-    return ($uri =~ m{^https?://}) ? $uri : $self->make_base_uri($scheme) . $uri;
+    return ($uri =~ m{^https?://}) ? $uri : $self->make_base_url($scheme) . $uri;
 }
 
 sub make_base_url {

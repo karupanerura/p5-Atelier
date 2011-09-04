@@ -19,11 +19,27 @@ sub import {
     );
 
     my %export_sugars = (
-        connect => sub ($$) { ## no critic
+        any => sub ($$) { ## no critic
             $router_simple->connect(@_);
         },
+        get => sub ($$) { ## no critic
+            $router_simple->connect(@_, +{ method => [qw/HEAD GET/] });
+        },
+        post => sub ($$) { ## no critic
+            state $param_rule = Data::Validator->new(
+                $router_simple->connect(@_, +{ method => 'POST' });
+        },
+        connect => sub ($$) { ## no critic
+            # XXX: This is DEPRECATED. You should use any, get, post.
+            $_[1]->{method} = uc($_[1]->{method});
+            my $option = (!$_[1]->{method} or $_[1]->{method} eq 'ANY') ? +{} : +{ method => $_[1]->{method} };
+            $router_simple->connect(@_, $option);
+        },
         submapper => sub ($$) { ## no critic
-            $router_simple->submapper(@_);
+            # XXX: This is DEPRECATED. You should use any, get, post.
+            $_[1]->{method} = uc($_[1]->{method});
+            my $option = (!$_[1]->{method} or $_[1]->{method} eq 'ANY') ? +{} : +{ method => $_[1]->{method} };
+            $router_simple->submapper(@_, $option);
         },
     );
 
@@ -42,12 +58,7 @@ sub import {
 sub router {
     my($self, $env) = @_;
 
-    my $param  = $self->router_simple->match($env);
-    return unless($param);
-
-    my $method = $param->{method} ? uc( delete $param->{method} ) : 'ANY';
-
-    return $param if (($method eq 'ANY') or ($method eq $env->{REQUEST_METHOD}));
+    return $self->router_simple->match($env);
 }
 
 1;

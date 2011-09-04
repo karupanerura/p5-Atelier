@@ -2,7 +2,7 @@ package Atelier::Util::TinyTemplate;
 use strict;
 use warnings;
 
-require Carp;
+use Carp ();
 
 sub variable {
     my $class = shift;

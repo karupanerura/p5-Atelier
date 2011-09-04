@@ -12,6 +12,6 @@ builder {
     enable 'Plack::Middleware::ReverseProxy';
 
     Atelier->create_app(
-        app => 'Test'
+        app => 'TestPrj6'
     );
 };

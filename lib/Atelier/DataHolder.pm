@@ -2,11 +2,10 @@ package Atelier::DataHolder;
 use strict;
 use warnings;
 
-use Atelier::Util qw/datacopy wantclass/;
+use Atelier::Util qw/wantclass/;
 
-BEGIN {
-    require Carp; # require only(don't import)
-}
+use Carp ();
+use Data::Clone qw/clone/;
 
 sub import {
     return if(@_ == 1);
@@ -60,7 +59,7 @@ sub _mk_classdata {
         name   => $name,
         method => sub {
             (wantclass($_[0]) ne $create_to) ?
-                ( $class->_mk_classdata(create_to => wantclass($_[0]), name => $name)->(wantclass($_[0]), (@_ == 2) ? $_[1] : datacopy($holder)) ):
+                ( $class->_mk_classdata(create_to => wantclass($_[0]), name => $name)->(wantclass($_[0]), (@_ == 2) ? $_[1] : clone($holder)) ):
                 ( (@_ == 2) ? $holder = $_[1] : $holder );
         },
     );
@@ -95,9 +94,9 @@ sub _mk_translucent {
             ref($_[0]) ?
                 (@_ == 2) ?
                     ( $_[0]->{$name} = $_[1] ):
-                    ( exists($_[0]->{$name}) ? $_[0]->{$name} : ($_[0]->{$name} = datacopy($holder)) ):
+                    ( exists($_[0]->{$name}) ? $_[0]->{$name} : ($_[0]->{$name} = clone($holder)) ):
                 ($_[0] ne $create_to) ?
-                    ( $class->_mk_translucent(create_to => $_[0], name => $name)->($_[0], (@_ == 2) ? $_[1] : datacopy($holder)) ):
+                    ( $class->_mk_translucent(create_to => $_[0], name => $name)->($_[0], (@_ == 2) ? $_[1] : clone($holder)) ):
                     ( (@_ == 2) ? ( $holder = $_[1] ) : ( $holder ) );
         },
     );

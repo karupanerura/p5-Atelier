@@ -1,8 +1,8 @@
-package __APP_NAME__;
+package TestPrj6;
 use strict;
 use warnings;
 
-require __PERL_VERSION__;
+require 5.006_000;
 
 our $VERSION = '0.01';
 

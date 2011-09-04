@@ -18,7 +18,10 @@ sub __pre_export {
 
 sub call_trigger {
     my $self  = shift;
-    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
+    my $args  = +{
+        name => $_[0],
+        cb   => $_[1],
+    };
 
     foreach my $trigger (@{$self->trigger->{$args->{name}}}) {
         exists($args->{cb}) ?
@@ -29,7 +32,10 @@ sub call_trigger {
 
 sub add_trigger {
     my $self  = shift;
-    my $args  = (@_ == 1) ? $_[0] : +{ @_ };
+    my $args  = +{
+        name => $_[0],
+        cb   => $_[1],
+    };
 
     push(@{ $self->trigger->{$args->{name}} }, $args->{cb});
 }

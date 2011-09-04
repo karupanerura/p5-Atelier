@@ -14,10 +14,6 @@ our(@EXPORT_OK, %EXPORT_TAGS);
     __PACKAGE__->get_all_subs;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-BEGIN {
-    require Clone; # require only(don't import)
-}
-
 sub get_all_subs($) { ## no critic
     my $class = shift;
 
@@ -75,6 +71,21 @@ sub add_method {
     }
 }
 
+sub rewrite_method {
+    state $rule = Data::Validator->new(
+        rewrite_to => +{ isa => 'Str' },
+        name       => +{ isa => 'Str' },
+        method     => +{ isa => 'CodeRef' },
+    );
+    my $args = $rule->validate(@_);
+
+    {
+        no strict   'refs';     ## no critic
+        no warnings 'redefine'; ## no critic
+        *{"$args->{rewrite_to}::$args->{name}"} = $args->{method};
+    }
+}
+
 sub base_dir($) { ## no critic
     my $path = shift;
 
@@ -87,10 +98,6 @@ sub base_dir($) { ## no critic
     else {
         File::Spec->rel2abs('./');
     }
-}
-
-sub datacopy($) { ## no critic
-    ref($_[0]) ? Clone::clone($_[0]) : $_[0]
 }
 
 sub wantclass($) { ## no critic

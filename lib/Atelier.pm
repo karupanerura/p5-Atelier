@@ -5,7 +5,7 @@ use warnings;
 use Module::Find;
 use Module::Load;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 {
     our $CONTEXT; # You can localize this variable in your application.
@@ -92,6 +92,8 @@ Atelier is Sledge like interface.
 Kenta Sato E<lt>karupa@cpan.orgE<gt>
 
 =head1 SEE ALSO
+
+L<Router::Simple> L<Tiffany>
 
 =head1 LICENSE
 
