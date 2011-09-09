@@ -2,7 +2,7 @@ package Atelier::Plugin::TmplDispatcher::PathInfo;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin/;
+use Atelier::Plugin -base;
 
 sub __pre_export {
     my $class  = shift;

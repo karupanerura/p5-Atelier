@@ -2,9 +2,7 @@ package Atelier::Plugin::Config;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin/;
-
-use Atelier::DataHolder;
+use Atelier::Plugin -base;
 
 sub get_config_mode { $ENV{PLACK_ENV} or 'development' }
 

@@ -2,7 +2,7 @@ package Atelier::Plugin::Session::PlackSession;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin::Session/;
+use Atelier::Plugin::Session -base;
 
 use Plack::Session;
 sub create_session { Plack::Session->new(shift->env) }

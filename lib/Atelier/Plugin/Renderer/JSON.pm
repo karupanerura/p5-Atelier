@@ -2,7 +2,7 @@ package Atelier::Plugin::Renderer::JSON;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin/;
+use Atelier::Plugin -base;
 use Atelier::Util;
 
 use JSON;

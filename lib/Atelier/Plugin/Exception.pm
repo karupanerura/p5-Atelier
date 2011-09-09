@@ -2,13 +2,13 @@ package Atelier::Plugin::Exception;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin/;
+use Atelier::Plugin -base;
 
 use Atelier::Exception;
 use Try::Tiny;
 use Atelier::Util;
 
-# sugers 
+# sugers
 sub throw    ($;$) { (@_ == 1) ? $_[0]->throw : $_[1]->throw }                               ## no critic
 sub response ($;$) { Atelier::Exception::PSGIResponse->response((@_ == 1) ? $_[0] : $_[1]) } ## no critic
 

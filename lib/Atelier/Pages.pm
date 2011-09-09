@@ -12,6 +12,9 @@ use Atelier::DataHolder (
     mk_translucents => [
         qw/charset mime_type stash renderer is_text/
     ],
+    mk_classdatas => [
+        qw/plugins/
+    ],
     mk_accessors => [
         qw/env dispatch args template/
     ],
@@ -21,6 +24,7 @@ __PACKAGE__->mime_type('text/html');
 __PACKAGE__->charset('UTF-8');
 __PACKAGE__->is_text(1);
 __PACKAGE__->stash(+{});
+__PACKAGE__->plugins([]);
 
 sub import {
     my $class = shift;

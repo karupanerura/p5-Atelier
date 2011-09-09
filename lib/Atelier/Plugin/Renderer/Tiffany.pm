@@ -2,7 +2,7 @@ package Atelier::Plugin::Renderer::Tiffany;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin/;
+use Atelier::Plugin -base;
 use Atelier::Util;
 
 use 5.10.0;

@@ -51,7 +51,7 @@ features(
 install_script('script/atelier-builder.pl');
 install_script('script/atelier-flavormaker.pl');
 
-tests 't/*.t';
+tests 't/*.t t/*/*.t';
 author_tests 'xt';
 
 build_requires 'Test::More';

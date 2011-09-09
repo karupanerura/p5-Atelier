@@ -3,13 +3,14 @@ use strict;
 use warnings;
 
 use parent qw/TestPrj1::Pages/;
+use Atelier::Plugin::Exception;
 
 sub dispatch_index {
     my $self = shift;
 
     my $message = $self->encoder->encode('Hello,world');
 
-    return [
+    response [
         200,
         [
          'Content-Type'   => 'text/plain; charset=utf8',

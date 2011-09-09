@@ -2,7 +2,7 @@ package Atelier::Plugin::Config::YAML;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin::Config/;
+use Atelier::Plugin::Config -base;
 
 require YAML::Syck;
 use File::Spec;

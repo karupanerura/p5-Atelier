@@ -2,7 +2,7 @@ package Atelier::Plugin::Session;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin/;
+use Atelier::Plugin -base;
 
 sub session {
     my $self = shift;

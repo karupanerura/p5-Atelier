@@ -2,7 +2,7 @@ package Atelier::Plugin::Config::JSON;
 use strict;
 use warnings;
 
-use parent qw/Atelier::Plugin::Config/;
+use Atelier::Plugin::Config -base;
 
 require JSON;
 use File::Spec;

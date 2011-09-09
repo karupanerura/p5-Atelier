@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use 5.10.0;
-use parent qw/Atelier::Plugin/;
+use Atelier::Plugin -base;
 use Atelier::DataHolder;
 use Data::Validator;
 
