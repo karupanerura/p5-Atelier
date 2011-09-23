@@ -32,26 +32,17 @@ sub import {
     if ($option eq '-import') {
         no strict 'refs'; ## no critic
 
-        if ( $import_to->isa('Atelier::Pages') ) {
-            my @plugins = @{ $import_to->plugins };
-            unless (List::MoreUtils::any { $class eq $_ } @plugins) {
-                foreach my $depend ( @{ $class->_depend } ) {
-                    next if List::MoreUtils::any { $depend->{pkg} eq $_ } @plugins;
-                    load($depend->{pkg});
-                    $depend->{pkg}->import(
-                        -import => $import_to,
-                        $depend->{args} ?
-                        @{$depend->{args}} :
-                        ()
-                    );
-                    push( @{ $import_to->plugins }, $depend->{pkg});
-                }
-
-                push( @{ $import_to->plugins }, $class);
-            }
+        unless ( $import_to->can('__atelier_plugin_loaded__') ) {
+            Atelier::DataHolder->_mk_classdata(
+                create_to => $import_to,
+                name      => '__atelier_plugin_loaded__',
+            );
+            $import_to->__atelier_plugin_loaded__([]);
         }
-        else {
+        my @plugins = @{ $import_to->__atelier_plugin_loaded__ };
+        unless (List::MoreUtils::any { $class eq $_ } @plugins) {
             foreach my $depend ( @{ $class->_depend } ) {
+                next if List::MoreUtils::any { $depend->{pkg} eq $_ } @plugins;
                 load($depend->{pkg});
                 $depend->{pkg}->import(
                     -import => $import_to,
@@ -59,8 +50,11 @@ sub import {
                     @{$depend->{args}} :
                     ()
                 );
+                push( @{ $import_to->__atelier_plugin_loaded__ }, $depend->{pkg});
             }
-        };
+
+            push( @{ $import_to->__atelier_plugin_loaded__ }, $class);
+        }
 
         if ($class->can('__pre_export')) {
             local *{"${class}::pages"} = sub { $import_to };
