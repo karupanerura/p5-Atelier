@@ -6,7 +6,7 @@ use Carp ();
 use Atelier::Util;
 use Module::Load;
 
-use Atelier::DataHolder (
+use Atelier::Util::DataHolder (
     mk_classdatas => [qw/_depend/],
 );
 
@@ -33,7 +33,7 @@ sub import {
         no strict 'refs'; ## no critic
 
         unless ( $import_to->can('__atelier_plugin_loaded__') ) {
-            Atelier::DataHolder->_mk_classdata(
+            Atelier::Util::DataHolder->_mk_classdata(
                 create_to => $import_to,
                 name      => '__atelier_plugin_loaded__',
             );

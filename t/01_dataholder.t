@@ -1,5 +1,5 @@
 package Hoge;
-use Atelier::DataHolder (
+use Atelier::Util::DataHolder (
     mk_classdatas   => [qw/foo bar/],
     mk_translucents => [qw/hoge fuga/],
     mk_accessors    => [qw/test/],

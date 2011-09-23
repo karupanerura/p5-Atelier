@@ -8,7 +8,7 @@ use Encode;
 use Data::Validator;
 use Atelier::Util;
 
-use Atelier::DataHolder (
+use Atelier::Util::DataHolder (
     mk_translucents => [
         qw/charset mime_type stash renderer is_text/
     ],

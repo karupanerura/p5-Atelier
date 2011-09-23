@@ -1,4 +1,4 @@
-package Atelier::DataHolder;
+package Atelier::Util::DataHolder;
 use strict;
 use warnings;
 

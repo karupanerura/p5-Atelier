@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Carp ();
-use Atelier::DataHolder (
+use Atelier::Util::DataHolder (
     mk_classdatas => [qw/do_trace/],
 );
 

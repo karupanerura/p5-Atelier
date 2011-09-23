@@ -4,13 +4,13 @@ use warnings;
 
 use 5.10.0;
 use Atelier::Plugin -base;
-use Atelier::DataHolder;
+use Atelier::Util::DataHolder;
 use Data::Validator;
 
 sub __pre_export {
     my $class = shift;
     my $pages = pages();
-    Atelier::DataHolder->_mk_translucent(
+    Atelier::Util::DataHolder->_mk_translucent(
         create_to => $pages,
         name      => 'trigger',
     );
