@@ -34,7 +34,7 @@ sub _test_require {
 
     my $require_mod  = "${module}";
        $require_mod .= " ${version}" if($version);
-    
+
     eval("require ${require_mod};");
     $tb->plan(skip_all => qq{Test requires module "${require_mod}" but it's not found}) if($@);
 }

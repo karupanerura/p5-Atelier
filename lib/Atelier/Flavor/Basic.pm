@@ -22,7 +22,7 @@ sub dir_list {
 
 }
 
-sub file_list { 
+sub file_list {
     return [
           {
             'app.psgi' => 'use File::Spec;

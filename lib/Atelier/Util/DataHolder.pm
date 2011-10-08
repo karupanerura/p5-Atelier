@@ -64,7 +64,7 @@ sub _mk_classdata {
         name      => { isa => 'Str' },
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
-    
+
     my $create_to = $args->{create_to};
     my $name      = $args->{name};
 
@@ -103,12 +103,12 @@ sub _mk_translucent {
         name      => { isa => 'Str' },
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
-    
+
     my $create_to = $args->{create_to};
     my $name      = $args->{name};
 
     my $holder;
-    
+
     Atelier::Util::add_method(
         add_to => $create_to,
         name   => $name,

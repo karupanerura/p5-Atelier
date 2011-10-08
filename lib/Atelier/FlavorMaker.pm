@@ -43,7 +43,7 @@ sub create {
             my $path = $File::Find::name;
             $path =~ s{^\./}{};
             return if($path eq '.');
- 
+
             if (-f $path) {
                 $self->add_file(path => $path);
             }
@@ -54,7 +54,7 @@ sub create {
         no_chdir => 1,
     }, '.');
     Cwd::chdir($self->{cwd});
-    
+
     $self->finalize;
 }
 
@@ -149,7 +149,7 @@ sub dir_list {
     __DIR_LIST__
 }
 
-sub file_list { 
+sub file_list {
     __FILE_LIST__
 }
 

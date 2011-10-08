@@ -21,7 +21,7 @@ sub create_app {
         prefix => +{ isa => 'Str', optional => 1 }
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
-    
+
     my $pages_class      = "$args->{app}::Pages";
     my $dispatcher_class = "$args->{app}::Dispatcher";
 
@@ -80,7 +80,7 @@ Atelier - Lightweight web application framework.
          200,
          [ 'Cotent-Type' => 'text/plain' ],
          [ 'Hello,world!' ],
-      ];    
+      ];
   }
 
 =head1 DESCRIPTION

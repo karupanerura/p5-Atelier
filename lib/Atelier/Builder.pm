@@ -108,7 +108,7 @@ sub is_fresh_flavor_class {
     {
         no strict 'refs';
         ($self->flavor_version < (${"${flavor_class}::VERSION"} || 0));
-    } 
+    }
 }
 
 sub tmp_dir {
@@ -164,7 +164,7 @@ sub build {
 
                 open(my $out, ">:encoding($self->{charset})", $path) or die qq{Can't open file "$path": $!};
                 flock($out, LOCK_EX);
-                
+
                 print $out $result;
 
                 flock($out, LOCK_UN);
