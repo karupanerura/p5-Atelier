@@ -178,7 +178,7 @@ sub make_base_url {
 
     $scheme ||= $self->req->scheme;
 
-    return "${scheme}://" . $self->env->{HTTP_HOST} . '/';
+    return "${scheme}://" . $self->env->{HTTP_HOST};
 }
 
 sub base_dir {
