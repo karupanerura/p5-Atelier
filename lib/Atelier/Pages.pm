@@ -18,6 +18,7 @@ use Atelier::Util::DataHolder (
     ],
 );
 
+# set defaults
 __PACKAGE__->mime_type('text/html');
 __PACKAGE__->charset('UTF-8');
 __PACKAGE__->is_text(1);
@@ -125,8 +126,8 @@ sub finalize {
     ];
 }
 
-sub status_403_content_type { 'text/plain' }
-sub status_403_message      { '403 Forbidden' }
+sub status_403_content_type { 'text/plain'    } # can override
+sub status_403_message      { '403 Forbidden' } # can override
 sub status_403 {
     my $self    = shift;
     my $message = $self->status_403_message;
@@ -142,8 +143,8 @@ sub status_403 {
     ];
 }
 
-sub status_404_content_type { 'text/plain' }
-sub status_404_message      { '404 Not Found' }
+sub status_404_content_type { 'text/plain'    } # can override
+sub status_404_message      { '404 Not Found' } # can override
 sub status_404 {
     my $self    = shift;
     my $message = $self->status_404_message;
@@ -177,7 +178,7 @@ sub make_absolute_url {
 
     return ($uri =~ m{^https?://}) ? $uri:
            ($uri =~ m{^/}) ? $self->make_base_url($scheme) . Atelier::Util::clean_path($uri):
-           $self->make_base_url($scheme) . Atelier::Util::clean_path(Atelier::Util::path_dir($self->env->{PATH_INFO}).'/'.$uri);
+           $self->make_base_url($scheme) . Atelier::Util::clean_path(Atelier::Util::uri_path_dir($self->env->{PATH_INFO}).$uri);
 }
 
 sub make_base_url {

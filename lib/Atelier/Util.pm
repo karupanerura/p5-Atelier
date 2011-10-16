@@ -93,10 +93,11 @@ sub rewrite_method {
     }
 }
 
-sub path_dir {
+sub uri_path_dir {
     my $path = shift;
 
-    File::Basename::dirname($path . 'd');
+    # 'd' is dummy string
+    File::Basename::dirname($path . 'd') . '/';
 }
 
 sub clean_path {
