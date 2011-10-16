@@ -125,7 +125,8 @@ sub finalize {
     ];
 }
 
-sub status_403_message { '403 Forbidden' }
+sub status_403_content_type { 'text/plain' }
+sub status_403_message      { '403 Forbidden' }
 sub status_403 {
     my $self    = shift;
     my $message = $self->status_403_message;
@@ -134,14 +135,15 @@ sub status_403 {
     [
         403,
         [
-            'Content-Type'   => 'text/plain',
+            'Content-Type'   => $self->status_403_content_type,
             'Content-Length' => length($message),
         ],
         [$message]
     ];
 }
 
-sub status_404_message { '404 Not Found' }
+sub status_404_content_type { 'text/plain' }
+sub status_404_message      { '404 Not Found' }
 sub status_404 {
     my $self    = shift;
     my $message = $self->status_404_message;
@@ -150,7 +152,7 @@ sub status_404 {
     [
         404,
         [
-            'Content-Type'   => 'text/plain',
+            'Content-Type'   => $self->status_404_content_type,
             'Content-Length' => length($message),
         ],
         [$message]
