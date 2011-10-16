@@ -7,6 +7,7 @@ use Carp ();
 use Encode;
 use Data::Validator;
 use Atelier::Util;
+use Plack::Request;
 
 use Atelier::Util::DataHolder (
     mk_translucents => [
@@ -43,7 +44,7 @@ sub new {
     bless(+{ %$args } => $class);
 }
 
-sub create_request { die 'most override' }
+sub create_request { Plack::Request->new(shift->env) } # you should override
 sub req {
     my $self = shift;
 
@@ -124,9 +125,10 @@ sub finalize {
     ];
 }
 
+sub status_403_message { '403 Forbidden' }
 sub status_403 {
     my $self    = shift;
-    my $message = '403 Forbidden';
+    my $message = $self->status_403_message;
 
     $self->renderer(undef) if ref($self);
     [
@@ -139,9 +141,10 @@ sub status_403 {
     ];
 }
 
+sub status_404_message { '404 Not Found' }
 sub status_404 {
     my $self    = shift;
-    my $message = '404 Not Found';
+    my $message = $self->status_404_message;
 
     $self->renderer(undef) if ref($self);
     [
@@ -170,7 +173,9 @@ sub redirect {
 sub make_absolute_url {
     my($self, $uri, $scheme) = @_;
 
-    return ($uri =~ m{^https?://}) ? $uri : $self->make_base_url($scheme) . $uri;
+    return ($uri =~ m{^https?://}) ? $uri:
+           ($uri =~ m{^/}) ? $self->make_base_url($scheme) . Atelier::Util::clean_path($uri):
+           $self->make_base_url($scheme) . Atelier::Util::clean_path(Atelier::Util::path_dir($self->env->{PATH_INFO}).'/'.$uri);
 }
 
 sub make_base_url {

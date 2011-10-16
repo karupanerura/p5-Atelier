@@ -5,6 +5,7 @@ use warnings;
 use 5.10.0;
 use Data::Validator;
 use File::Spec;
+use File::Basename ();
 
 use parent qw/Exporter/;
 
@@ -90,6 +91,21 @@ sub rewrite_method {
         no warnings 'redefine'; ## no critic
         *{"$args->{rewrite_to}::$args->{name}"} = $args->{method};
     }
+}
+
+sub path_dir {
+    my $path = shift;
+
+    File::Basename::dirname($path . 'd');
+}
+
+sub clean_path {
+    my $path = shift;
+
+    1 while($path =~ s{(?:(?<=/)\./|^\./|[^/]+/\.{2}/)}{});
+    $path =~ s{//}{/}g;
+
+    $path;
 }
 
 sub base_dir($) { ## no critic
