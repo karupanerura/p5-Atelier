@@ -22,14 +22,9 @@ test_psgi
         my $req = HTTP::Request->new('GET' => 'http://localhost/yaml/');
         my $res = $cb->($req);
         is $res->content, 'Hello,yaml config world.';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/yaml/japanese');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/yaml/japanese');
+        $res = $cb->($req);
         is Encode::decode('utf8', $res->content), 'ほげふが';
     };
 

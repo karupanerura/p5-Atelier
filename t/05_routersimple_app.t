@@ -21,67 +21,32 @@ test_psgi
         my $req = HTTP::Request->new('GET' => 'http://localhost/');
         my $res = $cb->($req);
         is $res->content, 'Hello,world';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('POST' => 'http://localhost/');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('POST' => 'http://localhost/');
+        $res = $cb->($req);
         is $res->content, 'Hello,world';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/no_exists_page');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/no_exists_page');
+        $res = $cb->($req);
         like $res->content, qr/404 Not Found/;
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/test/');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/test/');
+        $res = $cb->($req);
         like $res->content, qr/404 Not Found/;
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('POST' => 'http://localhost/test/');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('POST' => 'http://localhost/test/');
+        $res = $cb->($req);
         is $res->content, 'Test,world';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/echo/hoge');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/echo/hoge');
+        $res = $cb->($req);
         is $res->content, 'hoge';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/echo/fuga');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/echo/fuga');
+        $res = $cb->($req);
         is $res->content, 'fuga';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('POST' => 'http://localhost/echo/fuga');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('POST' => 'http://localhost/echo/fuga');
+        $res = $cb->($req);
         like $res->content, qr/404 Not Found/;
     };

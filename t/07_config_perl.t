@@ -20,14 +20,9 @@ test_psgi
         my $req = HTTP::Request->new('GET' => 'http://localhost/');
         my $res = $cb->($req);
         is $res->content, 'Hello,perl config world.';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/japanese');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/japanese');
+        $res = $cb->($req);
         is Encode::decode('utf8', $res->content), 'ほげふが';
     };
 

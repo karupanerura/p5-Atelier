@@ -23,14 +23,9 @@ test_psgi
         my $req = HTTP::Request->new('GET' => 'http://localhost/');
         my $res = $cb->($req);
         is $res->content, 'Hello,world.';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/json/');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/json/');
+        $res = $cb->($req);
         is_deeply decode_json($res->content), +{
             hoge  => 'fuga',
             hello => 'world',

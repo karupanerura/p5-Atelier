@@ -21,41 +21,21 @@ test_psgi
         my $req = HTTP::Request->new('GET' => 'http://localhost/');
         my $res = $cb->($req);
         is $res->content, 'Hello,world';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/no_exists_page');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/no_exists_page');
+        $res = $cb->($req);
         like $res->content, qr/404 Not Found/;
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/exists_page');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/exists_page');
+        $res = $cb->($req);
         is $res->content, 'Exists';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/tiffany/');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/tiffany/');
+        $res = $cb->($req);
         like $res->content, qr/Hello,world/;
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/tiffany/camel_case/');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/tiffany/camel_case/');
+        $res = $cb->($req);
         like $res->content, qr/CamelCase/;
     };
 

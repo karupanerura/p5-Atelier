@@ -22,14 +22,9 @@ test_psgi
         my $req = HTTP::Request->new('GET' => 'http://localhost/json/');
         my $res = $cb->($req);
         is $res->content, 'Hello,json config world.';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/json/japanese');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/json/japanese');
+        $res = $cb->($req);
         is Encode::decode('utf8', $res->content), 'ほげふが';
     };
 

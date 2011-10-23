@@ -18,24 +18,14 @@ test_psgi
         my $res = $cb->($req);
         ok $res->is_success;
         is $res->content, 'Hello,world.';
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/no_exists_page');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/no_exists_page');
+        $res = $cb->($req);
         ok !$res->is_success;
         like $res->content, qr/404 Not Found/;
-    };
 
-test_psgi
-    app => $app,
-    client => sub {
-        my $cb = shift;
-        my $req = HTTP::Request->new('GET' => 'http://localhost/hoge');
-        my $res = $cb->($req);
+        $req = HTTP::Request->new('GET' => 'http://localhost/hoge');
+        $res = $cb->($req);
         ok !$res->is_success;
         like $res->content, qr/Hoge exception/;
     };
