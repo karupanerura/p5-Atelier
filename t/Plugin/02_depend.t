@@ -1,4 +1,5 @@
 package Fuga;
+use t::Plugin::Hoge;
 use t::Plugin::Foo;
 
 1;
