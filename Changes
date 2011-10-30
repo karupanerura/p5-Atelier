@@ -12,3 +12,7 @@ Revision history for Perl extension Atelier
 0.05    Sat Sep 24 2011
         - Atelier::DataHolder change package name to Atelier::Util::DataHolder
         - fixed plugin load multiple protection.
+0.06    Sun Oct 30 2011
+        - Atelier::Plugin dependency control more strict and flexible.
+        - fixed Atelier::Plugin::Exception's bug.
+        - add Atelier::Context.

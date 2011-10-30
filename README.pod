@@ -37,7 +37,7 @@ Atelier - Lightweight web application framework.
          200,
          [ 'Cotent-Type' => 'text/plain' ],
          [ 'Hello,world!' ],
-      ];    
+      ];
   }
 
 =head1 DESCRIPTION
