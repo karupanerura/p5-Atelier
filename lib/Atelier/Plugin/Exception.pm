@@ -7,6 +7,7 @@ use Atelier::Plugin -base;
 use Atelier::Exception;
 use Try::Tiny;
 use Atelier::Util;
+use Carp ();
 
 # sugers
 sub throw    ($;$) { (@_ == 1) ? $_[0]->throw : $_[1]->throw }                               ## no critic
@@ -18,14 +19,15 @@ sub __pre_export {
 
     if ( pages()->isa('Atelier::Pages') ) {
         my $super = pages()->can('exec');
-        Atelier::Util::rewrite_method(
-            rewrite_to => 'Atelier::Pages',
+        Atelier::Util::add_method(
+            add_to     => pages(),
             name       => 'exec',
             method     => sub {
                 my $self = shift;
 
                 my $res;
                 try {
+                    local $SIG{__DIE__} = sub { Carp::confess(@_) };
                     $res = $self->$super();
                 }
                 catch {
