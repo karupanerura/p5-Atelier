@@ -23,8 +23,8 @@ sub import {
         $import_to = ($option eq '-import') ? shift : caller;
     }
     else {
-        $import_to = caller;
         $option = '-import';
+        $import_to = caller;
     }
 
     Carp::croak(q{This module can't use. This is parent module.}) if ($class eq __PACKAGE__ and $option eq '-import') ;
@@ -42,15 +42,12 @@ sub import {
         my @plugins = @{ $import_to->__atelier_plugin_loaded__ };
         unless (List::MoreUtils::any { $class eq $_ } @plugins) {
             foreach my $depend ( @{ $class->_depend } ) {
-                next if List::MoreUtils::any { $depend->{pkg} eq $_ } @plugins;
-                load($depend->{pkg});
-                $depend->{pkg}->import(
-                    -import => $import_to,
-                    $depend->{args} ?
-                    @{$depend->{args}} :
-                    ()
-                );
-                push( @{ $import_to->__atelier_plugin_loaded__ }, $depend->{pkg});
+                next if List::MoreUtils::any {
+                    $depend->{type} eq 'isa'    ? $_->isa($depend->{pkg}):
+                    $depend->{type} eq 'strict' ? ($_ eq $depend->{pkg}):
+                    Carp::croak("Unknown depend type: '$depend->{type}'");
+                } @plugins;
+                Carp::croak("Yet load plugin '$depend->{pkg}'");
             }
 
             push( @{ $import_to->__atelier_plugin_loaded__ }, $class);
@@ -82,8 +79,19 @@ sub import {
     elsif ($option eq '-depend') {
         push( @{$import_to->_depend}, +{
             pkg  => $class,
+            type => 'strict',
             args => [ @_ ],
         });
+    }
+    elsif ($option eq '-depend-isa') {
+        push( @{$import_to->_depend}, +{
+            pkg  => $class,
+            type => 'isa',
+            args => [ @_ ],
+        });
+    }
+    else {
+        Carp::croak("Unknown option: '${option}'");
     }
 }
 
