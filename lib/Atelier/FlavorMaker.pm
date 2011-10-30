@@ -101,13 +101,12 @@ sub add_dir {
 sub finalize {
     my $self = shift;
 
+    local $Data::Dumper::Terse = 1;
     my $dir_list = Dumper($self->{dir_list});
-    $dir_list  =~ s/^\$VAR1 =/return/;
-    $self->{dir_list} = $dir_list;
+    $self->{dir_list} = "return $dir_list";
 
     my $file_list = Dumper($self->{file_list});
-    $file_list  =~ s/^\$VAR1 =/return/;
-    $self->{file_list} = $file_list;
+    $self->{file_list} = "return $file_list";
 
     $self->create_flavor;
 }

@@ -92,8 +92,9 @@ sub write_flavor_info {
         no strict 'refs';
         $flavor_info->{$self->{flavor}}{VERSION} = ${"${flavor_class}::VERSION"} || 0;
     }
+
+    local $Data::Dumper::Terse = 1;
     my $data = Dumper($flavor_info);
-    $data =~ s/^\$VAR1 =//;
 
     open(my $fh, '>', "$ENV{HOME}/.atelier/flavor_info.pl");
     print $fh "$data";
