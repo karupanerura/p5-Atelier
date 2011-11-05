@@ -7,11 +7,14 @@ githubmeta;
 
 # requires '';
 
-requires 'Plack';
+requires 'Plack::Request';
+requires 'Try::Tiny'; # this is Plack's require module
 requires 'Module::Find';
 requires 'Data::Validator';
-requires 'Try::Tiny'; # this is Plack's require module
 requires 'Data::Clone';
+requires 'List::MoreUtils';
+requires 'Sub::Identify';
+requires 'B::Hooks::EndOfScope';
 
 # core module after perl 5.10.0
 requires 'Exporter';
@@ -54,7 +57,12 @@ install_script('script/atelier-flavormaker.pl');
 tests 't/*.t t/*/*.t';
 author_tests 'xt';
 
-build_requires 'Test::More';
+test_requires 'Test::More';
+test_requires 'Test::Builder::Module';
+test_requires 'Plack::Test';
+test_requires 'HTTP::Request';
+test_requires 'Module::Find';
+
 auto_set_repository;
 auto_include;
 WriteAll;

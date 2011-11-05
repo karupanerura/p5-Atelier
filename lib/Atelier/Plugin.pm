@@ -17,6 +17,7 @@ __PACKAGE__->_depend([]);
 sub import {
     my $class  = shift;
 
+
     my($option, $import_to);
     if (@_ and $_[0] =~ m{^-(?:base|parent|depend|import)$}) {
         $option = shift;
@@ -49,7 +50,6 @@ sub import {
                 } @plugins;
                 Carp::croak("Yet load plugin '$depend->{pkg}'");
             }
-
             push( @{ $import_to->__atelier_plugin_loaded__ }, $class);
         }
 
@@ -60,7 +60,7 @@ sub import {
 
         my @methods =
             grep { not m{^_} }
-            grep { not m{^(import|AUTOLOAD|DESTROY)$} }
+            grep { not m{^(?:import|AUTOLOAD|DESTROY|BEGIN|CHECK|END)$} }
             Atelier::Util::get_all_methods($class);
 
         foreach my $method (@methods) {

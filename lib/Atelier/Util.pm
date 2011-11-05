@@ -6,15 +6,19 @@ use 5.10.0;
 use Data::Validator;
 use File::Spec;
 use File::Basename ();
+use Sub::Identify ();
+use B::Hooks::EndOfScope;
 
 use parent qw/Exporter/;
 
 our(@EXPORT_OK, %EXPORT_TAGS);
-@EXPORT_OK =
-    grep { not m{^_} }
-    grep { not m{^(import|AUTOLOAD|DESTROY)$} }
-    __PACKAGE__->get_all_subs;
-$EXPORT_TAGS{all} = \@EXPORT_OK;
+on_scope_end {
+    @EXPORT_OK =
+        grep { not m{^_} }
+        grep { not m{^(?:import|AUTOLOAD|DESTROY|BEGIN|CHECK|END)$} }
+        __PACKAGE__->get_all_subs;
+    $EXPORT_TAGS{all} = \@EXPORT_OK;
+};
 
 sub get_all_subs($) { ## no critic
     my $class = shift;
@@ -23,8 +27,9 @@ sub get_all_subs($) { ## no critic
         no strict 'refs'; ## no critic
         my $symbol_table = \%{"${class}::"};
         my @methods =
+            grep { Sub::Identify::stash_name($class->can($_)) eq $class }
             grep { defined(*{$symbol_table->{$_}}{CODE}) }
-           (keys %$symbol_table);
+            (keys %$symbol_table);
 
         wantarray ? @methods : \@methods;
     }
