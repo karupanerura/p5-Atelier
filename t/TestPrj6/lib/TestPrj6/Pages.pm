@@ -6,7 +6,4 @@ use parent qw/Atelier::Pages/;
 
 use Atelier::Plugin::Config::Perl;
 
-use Plack::Request;
-sub create_request { Plack::Request->new(shift->env) }
-
 1;

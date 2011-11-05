@@ -17,6 +17,4 @@ use Atelier::Plugin::Renderer::Tiffany (
 use Atelier::Plugin::Trigger;
 use Atelier::Plugin::TmplDispatcher::PathInfo;
 
-sub create_request { Plack::Request->new(shift->env) }
-
 1;
