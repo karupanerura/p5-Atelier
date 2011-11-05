@@ -1,9 +1,14 @@
 use inc::Module::Install;
 name 'Atelier';
 all_from 'lib/Atelier.pm';
-readme_from 'lib/Atelier.pm';
-readme_pod_from 'lib/Atelier.pm';
-githubmeta;
+
+sub my_author_recommend {
+    my $module = shift;
+    warn "You should exec 'cpanm ${module}' if you are this module author.";
+}
+eval "readme_from 'lib/Atelier.pm'; 1;"     or my_author_recommend 'Module::Install::ReadmeFromPod';
+eval "readme_pod_from 'lib/Atelier.pm'; 1;" or my_author_recommend 'Module::Install::ReadmePodFromPod';
+eval "githubmeta; 1;"                       or my_author_recommend 'Module::Install::GithubMeta';
 
 # requires '';
 
@@ -66,5 +71,5 @@ test_requires 'parent';
 test_requires 'Sub::Identify';
 test_requires 'B::Hooks::EndOfScope';
 
-auto_set_repository;
+eval "auto_set_repository; 1;" or my_author_recommend 'Module::Install::Repository';
 WriteAll;
