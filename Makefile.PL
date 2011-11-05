@@ -63,6 +63,8 @@ test_requires 'Plack::Test';
 test_requires 'HTTP::Request';
 test_requires 'Module::Find';
 test_requires 'parent';
+test_requires 'Sub::Identify';
+test_requires 'B::Hooks::EndOfScope';
 
 auto_set_repository;
 WriteAll;

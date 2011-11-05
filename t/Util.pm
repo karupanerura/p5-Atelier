@@ -2,13 +2,32 @@ package t::Util;
 use strict;
 use warnings;
 
-use Atelier::Util;
 use parent qw/Test::Builder::Module/;
+use Sub::Identify ();
+use B::Hooks::EndOfScope;
 
-our @EXPORT =
-    grep { not m{^_} }
-    grep { not m{^(import|AUTOLOAD|DESTROY)$} }
-    Atelier::Util::get_all_subs(__PACKAGE__);
+our @EXPORT;
+on_scope_end {
+    @EXPORT =
+        grep { not m{^_} }
+        grep { not m{^(import|AUTOLOAD|DESTROY|BEGIN|CHECK|END)$} }
+        __PACKAGE__->get_all_subs;
+};
+
+sub get_all_subs($) { ## no critic
+    my $class = shift;
+
+    {
+        no strict 'refs'; ## no critic
+        my $symbol_table = \%{"${class}::"};
+        my @methods =
+            grep { Sub::Identify::stash_name($class->can($_)) eq $class }
+            grep { defined(*{$symbol_table->{$_}}{CODE}) }
+            (keys %$symbol_table);
+
+        wantarray ? @methods : \@methods;
+    }
+}
 
 sub test_require {
     my @modules = @_;
