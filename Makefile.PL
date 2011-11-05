@@ -62,7 +62,7 @@ test_requires 'Test::Builder::Module';
 test_requires 'Plack::Test';
 test_requires 'HTTP::Request';
 test_requires 'Module::Find';
+test_requires 'parent';
 
 auto_set_repository;
-auto_include;
 WriteAll;
