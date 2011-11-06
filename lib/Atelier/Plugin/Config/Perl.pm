@@ -4,7 +4,6 @@ use warnings;
 
 use Atelier::Plugin::Config -base;
 
-require JSON;
 use File::Spec;
 
 sub load_config {
