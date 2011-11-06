@@ -113,7 +113,7 @@ sub finalize {
     my $self = shift;
 
     my $content = $self->render;
-    $content    = $self->encoder->encode($content) if (Encode::is_utf8($content));
+    $content    = $self->encoder->encode($content);
 
     [
         200,
