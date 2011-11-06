@@ -9,10 +9,8 @@ use Atelier;
 use lib 't/TestPrj4/lib';
 use t::Util;
 
-test_require('JSON');
+test_use('JSON');
 plan tests => 2;
-
-use JSON qw/decode_json/;
 
 my $app = Atelier->create_app(app => 'TestPrj4');
 
