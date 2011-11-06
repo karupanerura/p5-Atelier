@@ -160,12 +160,13 @@ sub status_404 {
     ];
 }
 
+sub redirect_status { 302 }
 sub redirect {
     my ($self, $uri, $scheme) = @_;
 
     $self->renderer(undef);
     [
-       302,
+       $self->redirect_status,
        [
           'Location' => $self->make_absolute_url($uri, $scheme),
        ],
@@ -184,7 +185,7 @@ sub make_absolute_url {
 sub make_base_url {
     my($self, $scheme) = @_;
 
-    $scheme ||= $self->req->scheme;
+    $scheme ||= $self->env->{'psgi.url_scheme'};
 
     return "${scheme}://" . $self->env->{HTTP_HOST};
 }
