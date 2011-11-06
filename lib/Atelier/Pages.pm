@@ -113,7 +113,7 @@ sub finalize {
     my $self = shift;
 
     my $content = $self->render;
-    $content    = $self->encoder->encode($content);
+    $content    = $self->encoder->encode($content) if($self->is_text);
 
     [
         200,
