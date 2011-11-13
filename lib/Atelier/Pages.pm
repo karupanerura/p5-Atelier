@@ -14,7 +14,7 @@ use Atelier::Util::DataHolder (
         qw/charset mime_type stash renderer is_text/
     ],
     mk_accessors => [
-        qw/env dispatch args template/
+        qw/env dispatch args template render_result/
     ],
 );
 
@@ -103,10 +103,25 @@ sub run_dispatch {
 }
 
 sub render {
-    my $self = shift;
+    state $rule = Data::Validator->new(
+        template => +{ isa => 'Str',     optional => 1 },
+        option   => +{ isa => 'HashRef', optional => 1 },
+    )->with('Method', 'Sequenced');
+    my($self, $args) = $rule->validate(@_);
 
-    my $renderer = $self->renderer;
-    $self->$renderer(@_);
+    return $self->render_result || do {
+        $self->template($args->{template}) if (exists $args->{template});
+        $self->stash(+{
+            %{ $self->stash },
+            %{ $args->{option} }
+        }) if (exists $args->{option});
+
+        my $renderer = $self->renderer;
+        my $result = $self->$renderer(@_);
+        $self->render_result($result);
+
+        $result;
+    };
 }
 
 sub finalize {

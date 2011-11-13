@@ -37,5 +37,9 @@ test_psgi
         $req = HTTP::Request->new('GET' => 'http://localhost/tiffany/camel_case/');
         $res = $cb->($req);
         like $res->content, qr/CamelCase/;
+
+        $req = HTTP::Request->new('GET' => 'http://localhost/tiffany/camel_case/index_clone');
+        $res = $cb->($req);
+        like $res->content, qr/CamelCase/;
     };
 
