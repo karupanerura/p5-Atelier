@@ -10,7 +10,7 @@ use lib 't/TestPrj2/lib';
 use t::Util;
 
 test_require('Tiffany', 'Text::Xslate');
-plan tests => 5;
+plan tests => 6;
 
 my $app = Atelier->create_app(app => 'TestPrj2');
 
