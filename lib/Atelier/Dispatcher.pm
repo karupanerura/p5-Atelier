@@ -31,10 +31,12 @@ sub app_pages {
 sub init_pass_list {
     my $self = shift;
 
+    my $prefix = $self->{prefix};
     $self->{pass_list} = +{};
     foreach my $klass ( @{$self->{pages}} ) {
         $self->{pass_list}{$klass} = +{};
         foreach my $dispatch ( $self->get_dispatches($klass) ) {
+            $dispatch =~ s/^$prefix//;
             $self->{pass_list}{$klass}{$dispatch} = 1;
         }
     }
@@ -63,12 +65,13 @@ sub dispatch {
     return $self->app_pages->status_404 unless($route && $route->{pages} && $route->{dispatch});
 
     my $pages    = $self->app_pages . '::' . delete($route->{pages});
-    my $dispatch = $self->{prefix} .         delete($route->{dispatch});
+    my $dispatch = delete($route->{dispatch});
 
     if ( $self->is_dispatch_enable($pages, $dispatch) ) {
         my $app_obj = $pages->new(
             env      => $args->{env},
-            dispatch => $dispatch,
+            prefix   => $self->{prefix},
+            action   => $dispatch,
             args     => $route,
         );
 

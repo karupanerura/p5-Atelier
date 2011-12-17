@@ -14,7 +14,7 @@ use Atelier::Util::DataHolder (
         qw/charset mime_type stash renderer is_text/
     ],
     mk_accessors => [
-        qw/env dispatch args template render_result/
+        qw/env dispatch args template render_result action prefix/
     ],
 );
 
@@ -37,12 +37,13 @@ sub class_initalize {} # can override
 sub new {
     state $rule = Data::Validator->new(
         env      => 'HashRef',
-        dispatch => 'Str',
+        prefix   => 'Str',
+        action   => 'Str',
         args     => 'HashRef',
     )->with('Method');
     my($class, $args) = $rule->validate(@_);
 
-    bless(+{ %$args } => $class);
+    bless(+{ %$args, dispatch => $args->{prefix} . $args->{action} } => $class);
 }
 
 sub create_request { Plack::Request->new(shift->env) } # you should override
