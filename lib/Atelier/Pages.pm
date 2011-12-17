@@ -14,7 +14,7 @@ use Atelier::Util::DataHolder (
         qw/charset mime_type stash renderer is_text/
     ],
     mk_accessors => [
-        qw/env dispatch args template/
+        qw/env dispatch args template render_result/
     ],
 );
 
@@ -103,17 +103,32 @@ sub run_dispatch {
 }
 
 sub render {
-    my $self = shift;
+    state $rule = Data::Validator->new(
+        template => +{ isa => 'Str',     optional => 1 },
+        option   => +{ isa => 'HashRef', optional => 1 },
+    )->with('Method', 'Sequenced');
+    my($self, $args) = $rule->validate(@_);
 
-    my $renderer = $self->renderer;
-    $self->$renderer(@_);
+    return $self->render_result || do {
+        $self->template($args->{template}) if (exists $args->{template});
+        $self->stash(+{
+            %{ $self->stash },
+            %{ $args->{option} }
+        }) if (exists $args->{option});
+
+        my $renderer = $self->renderer;
+        my $result = $self->$renderer(@_);
+        $self->render_result($result);
+
+        $result;
+    };
 }
 
 sub finalize {
     my $self = shift;
 
     my $content = $self->render;
-    $content    = $self->encoder->encode($content) if (Encode::is_utf8($content));
+    $content    = $self->encoder->encode($content) if($self->is_text);
 
     [
         200,
@@ -160,12 +175,13 @@ sub status_404 {
     ];
 }
 
+sub redirect_status { 302 }
 sub redirect {
     my ($self, $uri, $scheme) = @_;
 
     $self->renderer(undef);
     [
-       302,
+       $self->redirect_status,
        [
           'Location' => $self->make_absolute_url($uri, $scheme),
        ],
@@ -184,7 +200,7 @@ sub make_absolute_url {
 sub make_base_url {
     my($self, $scheme) = @_;
 
-    $scheme ||= $self->req->scheme;
+    $scheme ||= $self->env->{'psgi.url_scheme'};
 
     return "${scheme}://" . $self->env->{HTTP_HOST};
 }
