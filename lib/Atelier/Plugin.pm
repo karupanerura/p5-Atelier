@@ -44,6 +44,7 @@ sub import {
         unless (List::MoreUtils::any { $class eq $_ } @plugins) {
             foreach my $depend ( @{ $class->_depend } ) {
                 next if List::MoreUtils::any {
+                    warn "isa: '$depend->{type}', pkg: '$depend->{pkg}'";
                     $depend->{type} eq 'isa'    ? $_->isa($depend->{pkg}):
                     $depend->{type} eq 'strict' ? ($_ eq $depend->{pkg}):
                     Carp::croak("Unknown depend type: '$depend->{type}'");
@@ -54,13 +55,12 @@ sub import {
         }
 
         if ($class->can('__pre_export')) {
-            local *{"${class}::pages"} = sub { $import_to };
-            $class->__pre_export(@_);
+            $class->___pre_export($import_to, @_);
         }
 
         my @methods =
             grep { not m{^_} }
-            grep { not m{^(?:import|AUTOLOAD|DESTROY|BEGIN|CHECK|END)$} }
+            grep { not m{^(?:import|pages|AUTOLOAD|DESTROY|BEGIN|CHECK|END)$} }
             Atelier::Util::get_all_methods($class);
 
         foreach my $method (@methods) {
@@ -68,13 +68,13 @@ sub import {
         }
 
         if ($class->can('__post_export')) {
-            local *{"${class}::pages"} = sub { $import_to };
-            $class->__post_export(@_);
+            $class->___post_export($import_to, @_);
         }
     }
     elsif ($option =~ m{^-(?:base|parent)$}) {
         no strict 'refs';
         unshift( @{"${import_to}::ISA"}, $class );
+        *{"${import_to}::pages"} = sub { $import_to->_pages };
     }
     elsif ($option eq '-depend') {
         push( @{$import_to->_depend}, +{
@@ -93,6 +93,22 @@ sub import {
     else {
         Carp::croak("Unknown option: '${option}'");
     }
+}
+
+sub ___pre_export {
+    my($class, $import_to, @args) = @_;
+
+    no strict 'refs';
+    local *{__PACKAGE__ . '::_pages'} = sub { $import_to };
+    $class->__pre_export(@args);
+}
+
+sub ___post_export {
+    my($class, $import_to, @args) = @_;
+
+    no strict 'refs';
+    local *{__PACKAGE__ . '::_pages'} = sub { $import_to };
+    $class->__post_export(@args);
 }
 
 1;
