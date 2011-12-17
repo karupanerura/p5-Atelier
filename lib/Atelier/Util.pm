@@ -108,8 +108,7 @@ sub uri_path_dir {
 sub clean_path {
     my $path = shift;
 
-    1 while($path =~ s{(?:(?<=/)\./|^\./|[^/]+/\.{2}/)}{});
-    $path =~ s{//}{/}g;
+    1 while($path =~ s{(?:(?<=/)\.?/|^\./|[^/]+/\.{2}/)}{});
 
     $path;
 }
