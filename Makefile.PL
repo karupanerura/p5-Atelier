@@ -34,6 +34,10 @@ requires 'File::Path';
 requires 'File::Spec';
 
 features(
+    'if use Atelier::Dispather::RouterSimple' => [
+        -default => 0,
+        recommends('Router::Simple'),
+    ],
     'if use Atelier::Plugin::Renderer::Tiffany' => [
         -default => 0,
         recommends('Tiffany'),
@@ -50,9 +54,9 @@ features(
         -default => 0,
         recommends('YAML::Syck'),
     ],
-    'if use Atelier::Dispather::RouterSimple' => [
+    'if use Atelier::Plugin::Validator::Lite' => [
         -default => 0,
-        recommends('Router::Simple'),
+        recommends('FormValidator::Lite'),
     ],
 );
 
