@@ -33,6 +33,10 @@ requires 'File::Find';
 requires 'File::Path';
 requires 'File::Spec';
 
+requires 'Dist::Maker';
+requires 'Mouse';
+requires 'MouseX::StrictConstructor';
+
 features(
     'if use Atelier::Plugin::Renderer::Tiffany' => [
         -default => 0,
