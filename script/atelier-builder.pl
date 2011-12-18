@@ -13,10 +13,10 @@ GetOptions(
 pod2usage(0) if($help);
 my $app_name = shift(@ARGV) or pod2usage(0);
 
-Atelier::Builder->new(
-    flavor   => $flavor || 'Basic',
+Atelier::Builder->run(
+    $flavor ? (flavor   => $flavor) : (),
     app_name => $app_name,
-)->build;
+);
 
 __END__
 
