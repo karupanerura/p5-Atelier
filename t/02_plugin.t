@@ -1,5 +1,5 @@
 package Hoge;
-use parent qw/Atelier::Plugin/;
+use Atelier::Plugin -base;
 
 my $PRE_EXPORT_OK;
 my $POST_EXPORT_OK;

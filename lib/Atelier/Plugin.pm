@@ -44,7 +44,6 @@ sub import {
         unless (List::MoreUtils::any { $class eq $_ } @plugins) {
             foreach my $depend ( @{ $class->_depend } ) {
                 next if List::MoreUtils::any {
-                    warn "isa: '$depend->{type}', pkg: '$depend->{pkg}'";
                     $depend->{type} eq 'isa'    ? $_->isa($depend->{pkg}):
                     $depend->{type} eq 'strict' ? ($_ eq $depend->{pkg}):
                     Carp::croak("Unknown depend type: '$depend->{type}'");
@@ -55,7 +54,7 @@ sub import {
         }
 
         if ($class->can('__pre_export')) {
-            $class->___pre_export($import_to, @_);
+            $class->_run_pre_export($import_to, @_);
         }
 
         my @methods =
@@ -68,7 +67,7 @@ sub import {
         }
 
         if ($class->can('__post_export')) {
-            $class->___post_export($import_to, @_);
+            $class->_run_post_export($import_to, @_);
         }
     }
     elsif ($option =~ m{^-(?:base|parent)$}) {
@@ -95,7 +94,7 @@ sub import {
     }
 }
 
-sub ___pre_export {
+sub _run_pre_export {
     my($class, $import_to, @args) = @_;
 
     no strict 'refs';
@@ -103,7 +102,7 @@ sub ___pre_export {
     $class->__pre_export(@args);
 }
 
-sub ___post_export {
+sub _run_post_export {
     my($class, $import_to, @args) = @_;
 
     no strict 'refs';
