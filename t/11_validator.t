@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More;
 
 use t::Util;
 use Plack::Test;
@@ -10,6 +10,8 @@ use Atelier;
 use lib 't/TestPrj7/lib';
 
 test_require('FormValidator::Lite');
+plan tests => 3;
+
 my $app = Atelier->create_app(app => 'TestPrj7');
 
 test_psgi
